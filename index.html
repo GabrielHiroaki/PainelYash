@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Painel Financeiro</title>
+<meta name="theme-color" content="#0b0f14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f14;
+    --side:#0e1319;
+    --panel:#151b23;
+    --line:rgba(255,255,255,.08);
+    --text:#e8ecf1;
+    --dim:#8a97a6;
+    --faint:#56626f;
+    --accent:#5b9dff;
+    --danger:#ff6b6b;
+    --side-w:232px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+
+  /* ---------- login ---------- */
+  #login{
+    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    background:var(--bg);padding:20px;
+  }
+  #login[hidden]{display:none}
+  .login-box{width:100%;max-width:340px}
+  .login-box h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0 0 6px}
+  .login-box p{color:var(--dim);font-size:14px;margin:0 0 24px}
+  .login-box input{
+    width:100%;padding:12px 14px;margin-bottom:10px;border-radius:8px;
+    background:var(--panel);border:1px solid var(--line);color:var(--text);font:inherit;font-size:15px;
+  }
+  .login-box input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+  .login-box button{
+    width:100%;padding:12px;border:0;border-radius:8px;background:var(--accent);color:#04101f;
+    font:inherit;font-weight:700;cursor:pointer;margin-top:4px;
+  }
+  .login-box button:disabled{opacity:.6;cursor:wait}
+  #loginErro{color:var(--danger);font-size:13px;min-height:18px;margin-top:12px}
+
+  /* ---------- casca ---------- */
+  #app{display:none;height:100%}
+  #app.on{display:flex}
+
+  .side{
+    width:var(--side-w);flex-shrink:0;background:var(--side);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;padding:22px 14px;
+  }
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:21px;padding:0 10px 22px}
+  .menu{display:flex;flex-direction:column;gap:3px;flex:1}
+  .menu button{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    padding:11px 12px;border-radius:8px;border:0;background:transparent;color:var(--dim);
+    font:inherit;font-size:14.5px;cursor:pointer;transition:background .15s,color .15s;
+  }
+  .menu button:hover{background:var(--panel);color:var(--text)}
+  .menu button[aria-current="page"]{background:var(--panel);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
+  .menu .ico{font-size:17px;width:22px;text-align:center}
+  .menu button:focus-visible,.foot button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  .foot{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+  .foot .who{font-size:12px;color:var(--faint);padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .foot button{
+    padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;
+    color:var(--dim);font:inherit;font-size:13px;cursor:pointer;
+  }
+  .foot button:hover{color:var(--danger);border-color:rgba(255,107,107,.4)}
+
+  .stage{flex:1;position:relative;min-width:0}
+  .stage iframe{
+    position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg);display:none;
+  }
+  .stage iframe.on{display:block}
+  .carregando{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--faint);font-size:14px;pointer-events:none;
+  }
+  .carregando[hidden]{display:none}
+
+  /* ---------- celular: menu vira barra inferior ---------- */
+  @media(max-width:760px){
+    #app.on{flex-direction:column-reverse}
+    .side{
+      width:100%;flex-direction:row;align-items:stretch;padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+      border-right:0;border-top:1px solid var(--line);
+    }
+    .brand,.foot .who{display:none}
+    .menu{flex-direction:row;gap:2px}
+    .menu button{flex:1;flex-direction:column;gap:3px;padding:8px 2px;font-size:11px;text-align:center;justify-content:center}
+    .menu button[aria-current="page"]{box-shadow:inset 0 3px 0 var(--accent)}
+    .foot{border-top:0;padding:0 0 0 6px;justify-content:center}
+    .foot button{padding:8px 10px;font-size:12px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN ÚNICO -->
+<div id="login">
+  <form class="login-box" id="formLogin">
+    <h1>Painel Financeiro</h1>
+    <p>Entre uma vez e acesse tudo.</p>
+    <input type="email" id="email" placeholder="Email" autocomplete="username" required>
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required>
+    <button type="submit" id="btnEntrar">Entrar</button>
+    <div id="loginErro" role="alert"></div>
+  </form>
+</div>
+
+<!-- CASCA -->
+<div id="app">
+  <aside class="side">
+    <div class="brand">Painel</div>
+    <nav class="menu" id="menu"></nav>
+    <div class="foot">
+      <div class="who" id="quem"></div>
+      <button id="btnSair">Sair</button>
+    </div>
+  </aside>
+  <main class="stage" id="stage">
+    <div class="carregando" id="carregando" hidden>Carregando…</div>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* O login único usa o projeto do app de Ganhos (o único que já tem Auth).
+   Precisa ser o MESMO firebaseConfig do ganhos.html para a sessão ser compartilhada. */
+const firebaseConfig = {
+  apiKey: "AIzaSyDQcM-q2jwZMshHnuf-jRfaxeYSmsjNCUs",
+  authDomain: "controle-ganhos-6ec22.firebaseapp.com",
+  projectId: "controle-ganhos-6ec22",
+  storageBucket: "controle-ganhos-6ec22.firebasestorage.app",
+  messagingSenderId: "590231444558",
+  appId: "1:590231444558:web:2417aa6044f2a86e18371f"
+};
+const auth = getAuth(initializeApp(firebaseConfig));
+
+/* Módulos: cada um é um arquivo HTML original, na mesma pasta desta página. */
+const MODULOS = [
+  { id:"ganhos",   nome:"Ganhos",   ico:"💰", arquivo:"ganhos.html"   },
+  { id:"carro",    nome:"Carro",    ico:"⛽", arquivo:"carro.html"    },
+  { id:"cofrinho", nome:"Cofrinho", ico:"🐷", arquivo:"cofrinho.html" },
+  { id:"carteira", nome:"Carteira", ico:"👛", arquivo:"carteira.html" }
+];
+
+const $ = (id) => document.getElementById(id);
+const frames = {};
+
+/* menu */
+$("menu").innerHTML = MODULOS.map(m =>
+  `<button data-id="${m.id}"><span class="ico">${m.ico}</span><span>${m.nome}</span></button>`
+).join("");
+$("menu").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-id]");
+  if (b) location.hash = b.dataset.id;
+});
+
+function abrir(id){
+  const mod = MODULOS.find(m => m.id === id) || MODULOS[0];
+
+  document.querySelectorAll("#menu button").forEach(b => {
+    if (b.dataset.id === mod.id) b.setAttribute("aria-current","page");
+    else b.removeAttribute("aria-current");
+  });
+
+  // o iframe só é criado na primeira visita e depois fica vivo (não perde o que você estava fazendo)
+  if (!frames[mod.id]){
+    const f = document.createElement("iframe");
+    f.title = mod.nome;
+    f.src = mod.arquivo;
+    $("carregando").hidden = false;
+    f.addEventListener("load", () => { $("carregando").hidden = true; });
+    $("stage").appendChild(f);
+    frames[mod.id] = f;
+  }
+  Object.entries(frames).forEach(([k,f]) => f.classList.toggle("on", k === mod.id));
+  document.title = mod.nome + " · Painel Financeiro";
+}
+
+window.addEventListener("hashchange", () => { if (auth.currentUser) abrir(location.hash.slice(1)); });
+
+/* login / logout */
+$("formLogin").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("loginErro").textContent = "";
+  $("btnEntrar").disabled = true;
+  try{
+    await signInWithEmailAndPassword(auth, $("email").value.trim(), $("senha").value);
+  }catch(err){
+    console.error(err);
+    $("loginErro").textContent = "Email ou senha incorretos.";
+  }
+  $("btnEntrar").disabled = false;
+});
+
+$("btnSair").addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, (user) => {
+  if (user){
+    $("login").hidden = true;
+    $("app").classList.add("on");
+    $("quem").textContent = user.email;
+    abrir(location.hash.slice(1));
+  }else{
+    $("app").classList.remove("on");
+    $("login").hidden = false;
+    $("senha").value = "";
+    // descarrega os módulos ao sair, para nada ficar aberto na tela
+    Object.values(frames).forEach(f => f.remove());
+    Object.keys(frames).forEach(k => delete frames[k]);
+  }
+});
+</script>
+</body>
+</html>
