@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle de Compras</title>
+
+<style>
+:root {
+    --bg: #0d1424;
+    --panel: #131d33;
+    --panel-2: #182440;
+    --field: #0d1424;
+    --line: #243250;
+    --text: #e8edf7;
+    --muted: #8796b3;
+    --green: #34d399;
+    --red: #f87171;
+    --assai: #f5a524;
+    --amazon: #4cc2f0;
+    --radius: 10px;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px 16px 130px;
+    line-height: 1.4;
+}
+
+.container { max-width: 980px; margin: 0 auto; }
+
+/* ---------- Topo ---------- */
+.topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.periodo { display: flex; gap: 8px; }
+
+select {
+    appearance: none;
+    background: var(--panel) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%238796b3' stroke-width='2' d='M1 1l5 5 5-5'/></svg>") no-repeat right 12px center;
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px 34px 10px 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* ---------- Lojas ---------- */
+.loja {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--cor);
+    border-radius: var(--radius);
+    margin-bottom: 22px;
+    overflow: hidden;
+}
+.loja.assai  { --cor: var(--assai); }
+.loja.amazon { --cor: var(--amazon); }
+
+.loja-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+}
+
+.loja-head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+.subtotal {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+.subtotal b { color: var(--text); font-weight: 600; }
+
+.add-btn {
+    background: transparent;
+    color: var(--cor);
+    border: 1px solid var(--cor);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+.add-btn:hover { background: var(--cor); color: #0d1424; }
+
+/* ---------- Tabela ---------- */
+.tabela-wrap { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+th {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 9px 10px;
+    background: var(--panel-2);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+th:first-child { text-align: left; padding-left: 18px; }
+
+td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,.025); }
+
+td.item-name {
+    text-align: left;
+    padding-left: 18px;
+    font-weight: 500;
+    min-width: 180px;
+    outline: none;
+    border-radius: 6px;
+    cursor: text;
+}
+td.item-name:focus {
+    background: var(--field);
+    box-shadow: inset 0 0 0 1px var(--cor);
+}
+
+input {
+    width: 92px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    color: var(--text);
+    font: inherit;
+    text-align: center;
+}
+input:focus {
+    outline: none;
+    border-color: var(--cor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor) 25%, transparent);
+}
+td:nth-child(2) input { width: 74px; }
+
+.totalItem { font-weight: 600; white-space: nowrap; }
+
+.variacao { font-size: 0.9rem; white-space: nowrap; }
+.positivo { color: var(--red); }     /* preço subiu */
+.negativo { color: var(--green); }   /* preço caiu  */
+.neutro   { color: var(--muted); }
+
+.remove-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+.remove-btn:hover { background: rgba(248,113,113,.15); color: var(--red); }
+
+.vazio {
+    padding: 26px 18px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.92rem;
+    border-top: 1px solid var(--line);
+}
+.vazio[hidden] { display: none; }
+
+/* ---------- Barra do total (fixa) ---------- */
+.barra {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: rgba(19, 29, 51, .96);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 10;
+}
+
+.barra-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.total-box { flex: 1; min-width: 180px; }
+.total-box .rotulo { font-size: 0.85rem; color: var(--muted); }
+.total-box .valor {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+.total-box .anterior { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+.pdf-btn {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+.pdf-btn:hover { border-color: var(--green); background: #1c2b4b; }
+
+/* ---------- Aviso (toast) ---------- */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 110px;
+    transform: translate(-50%, 12px);
+    background: #223353;
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 20;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast.erro { border-color: var(--red); color: var(--red); }
+.toast button {
+    background: none;
+    border: none;
+    color: var(--amazon);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+    h1 { font-size: 1.3rem; }
+    .loja-head { flex-wrap: wrap; }
+    .subtotal { order: 3; width: 100%; }
+    .total-box .valor { font-size: 1.4rem; }
+    .pdf-btn { flex: 1; padding: 10px 8px; font-size: 0.85rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <h1>🛒 Controle de Compras</h1>
+        <div class="periodo">
+            <select id="mes" aria-label="Mês"></select>
+            <select id="ano" aria-label="Ano"></select>
+        </div>
+    </div>
+
+    <section class="loja assai">
+        <div class="loja-head">
+            <h2>Assaí</h2>
+            <span class="subtotal">Subtotal: <b id="subAssai">R$ 0,00</b></span>
+            <button class="add-btn" onclick="addItem('assai')">+ Adicionar item</button>
+        </div>
+        <div class="tabela-wrap">
+            <table id="assaiTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qtd</th>
+                        <th>Preço (R$)</th>
+                        <th>Total</th>
+                        <th>Variação</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="vazio" id="assaiVazio" hidden>Nenhum item ainda. Clique em “+ Adicionar item”.</div>
+    </section>
+
+    <section class="loja amazon">
+        <div class="loja-head">
+            <h2>Amazon</h2>
+            <span class="subtotal">Subtotal: <b id="subAmazon">R$ 0,00</b></span>
+            <button class="add-btn" onclick="addItem('amazon')">+ Adicionar item</button>
+        </div>
+        <div class="tabela-wrap">
+            <table id="amazonTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qtd</th>
+                        <th>Preço (R$)</th>
+                        <th>Total</th>
+                        <th>Variação</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="vazio" id="amazonVazio" hidden>Nenhum item ainda. Clique em “+ Adicionar item”.</div>
+    </section>
+
+</div>
+
+<div class="barra">
+    <div class="barra-inner">
+        <div class="total-box">
+            <div class="rotulo">Total do mês</div>
+            <div class="valor" id="totalGeral">R$ 0,00</div>
+            <div class="anterior" id="totalAnterior"></div>
+        </div>
+        <button class="pdf-btn" onclick="gerarPDFMes()">📄 PDF do mês</button>
+        <button class="pdf-btn" onclick="gerarPDFAno()">📊 PDF do ano</button>
+    </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCKKmt7Y4qWdD2n0aliR3jEN2q4CG9OvdU",
+  authDomain: "controle-compras-3d295.firebaseapp.com",
+  projectId: "controle-compras-3d295",
+  storageBucket: "controle-compras-3d295.firebasestorage.app",
+  messagingSenderId: "362807394371",
+  appId: "1:362807394371:web:4a9a736a76a90b6b8b94f6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+const mesSelect = document.getElementById("mes");
+const anoSelect = document.getElementById("ano");
+
+meses.forEach((m,i)=>{
+    let op = document.createElement("option");
+    op.value = i;
+    op.textContent = m;
+    mesSelect.appendChild(op);
+});
+
+for(let i=2024;i<=2030;i++){
+    let op = document.createElement("option");
+    op.value = i;
+    op.textContent = i;
+    anoSelect.appendChild(op);
+}
+
+mesSelect.value = new Date().getMonth();
+anoSelect.value = new Date().getFullYear();
+mesSelect.addEventListener("change", carregarMes);
+anoSelect.addEventListener("change", carregarMes);
+
+/* ---------- Utilidades ---------- */
+
+const brl = v => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[c]));
+}
+
+let toastTimer;
+function toast(msg, erro = false, acao = null){
+    const t = document.getElementById("toast");
+    t.innerHTML = "";
+
+    const s = document.createElement("span");
+    s.textContent = msg;
+    t.appendChild(s);
+
+    if(acao){
+        const b = document.createElement("button");
+        b.textContent = acao.label;
+        b.onclick = () => {
+            acao.fn();
+            t.classList.remove("show");
+        };
+        t.appendChild(b);
+    }
+
+    t.className = "toast show" + (erro ? " erro" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), acao ? 6000 : 1800);
+}
+
+/* ---------- Chaves do mês ---------- */
+
+function chaveMes(){
+    const mes = parseInt(mesSelect.value) + 1;
+    return `${anoSelect.value}-${mes}`;
+}
+
+function chaveMesAnterior(){
+    let m = parseInt(mesSelect.value);
+    let a = parseInt(anoSelect.value);
+
+    if(m === 0){
+        m = 11;
+        a--;
+    } else {
+        m--;
+    }
+
+    return `${a}-${m + 1}`;
+}
+
+/* ---------- Estado ---------- */
+
+let carregando = false;
+let anterior = {};          // dados do mês anterior (cache)
+let totalMesAtual = 0;      // usado no PDF
+
+/* ---------- Firebase ---------- */
+
+async function salvar(){
+    const dados = {
+        assai: getTableData("assaiTable"),
+        amazon: getTableData("amazonTable")
+    };
+
+    try {
+        await setDoc(doc(db, "compras", chaveMes()), dados);
+        toast("Salvo ✓");
+    } catch(e){
+        console.error(e);
+        toast("Não foi possível salvar. Verifique a conexão.", true);
+    }
+}
+
+async function carregarMes(){
+    carregando = true;
+
+    const ref = doc(db, "compras", chaveMes());
+    const refAnt = doc(db, "compras", chaveMesAnterior());
+
+    const [snap, snapAnt] = await Promise.all([getDoc(ref), getDoc(refAnt)]);
+
+    anterior = snapAnt.exists() ? snapAnt.data() : {};
+
+    let dados;
+
+    if(snap.exists()){
+        dados = snap.data();
+    } else if(snapAnt.exists()){
+        // mês novo: copia os itens do mês anterior com quantidade zerada
+        dados = {
+            assai: (anterior.assai || []).map(i => ({ ...i, qtd: 0, id: crypto.randomUUID() })),
+            amazon: (anterior.amazon || []).map(i => ({ ...i, qtd: 0, id: crypto.randomUUID() }))
+        };
+    } else {
+        dados = { assai: [], amazon: [] };
+    }
+
+    render("assaiTable", dados.assai || []);
+    render("amazonTable", dados.amazon || []);
+
+    atualizarTudo();
+
+    carregando = false;
+}
+
+/* ---------- Tabela ---------- */
+
+function getTableData(id){
+    let rows = document.querySelectorAll(`#${id} tbody tr`);
+    let data = [];
+
+    rows.forEach(r=>{
+        data.push({
+            id: r.dataset.id,
+            nome: r.children[0].innerText.trim(),
+            qtd: r.children[1].children[0].value,
+            preco: r.children[2].children[0].value
+        });
+    });
+
+    return data;
+}
+
+function criarLinha(item){
+    const tr = document.createElement("tr");
+    tr.dataset.id = item.id || crypto.randomUUID();
+
+    tr.innerHTML = `
+        <td contenteditable="true" spellcheck="false" class="item-name">${esc(item.nome)}</td>
+        <td><input type="number" min="0" step="any" inputmode="decimal" value="${esc(item.qtd)}" aria-label="Quantidade"></td>
+        <td><input type="number" min="0" step="0.01" inputmode="decimal" value="${esc(item.preco)}" aria-label="Preço"></td>
+        <td class="totalItem">R$ 0,00</td>
+        <td class="variacao">-</td>
+        <td><button class="remove-btn" title="Remover item" aria-label="Remover item">✕</button></td>
+    `;
+
+    return tr;
+}
+
+function render(id, data){
+    const tbody = document.querySelector(`#${id} tbody`);
+    tbody.innerHTML = "";
+    data.forEach(item => tbody.appendChild(criarLinha(item)));
+}
+
+// atualiza totais, variações e subtotal de uma tabela; devolve o subtotal
+function atualizarTabela(id){
+    const tipo = id.includes("assai") ? "assai" : "amazon";
+    const listaAnterior = anterior[tipo] || [];
+    let subtotal = 0;
+
+    document.querySelectorAll(`#${id} tbody tr`).forEach(r=>{
+        const qtd = parseFloat(r.children[1].children[0].value) || 0;
+        const preco = parseFloat(r.children[2].children[0].value) || 0;
+
+        const total = qtd * preco;
+        subtotal += total;
+
+        r.children[3].innerText = brl(total);
+        r.dataset.total = total.toFixed(2);
+
+        const nomeAtual = r.children[0].innerText.trim().toLowerCase();
+        const achou = listaAnterior.find(i => (i.nome || "").trim().toLowerCase() === nomeAtual);
+
+        const variacao = r.children[4];
+
+        if(achou){
+            const diff = preco - (parseFloat(achou.preco) || 0);
+            const txt = Math.abs(diff).toFixed(2).replace(".", ",");
+
+            if(diff > 0.004){
+                variacao.innerText = `▲ +${txt}`;
+                variacao.className = "variacao positivo";
+                r.dataset.var = `+${diff.toFixed(2)}`;
+            } else if(diff < -0.004){
+                variacao.innerText = `▼ −${txt}`;
+                variacao.className = "variacao negativo";
+                r.dataset.var = diff.toFixed(2);
+            } else {
+                variacao.innerText = "igual";
+                variacao.className = "variacao neutro";
+                r.dataset.var = "0";
+            }
+        } else {
+            variacao.innerText = "-";
+            variacao.className = "variacao neutro";
+            r.dataset.var = "-";
+        }
+    });
+
+    document.getElementById(`${id.replace("Table","")}Vazio`).hidden =
+        document.querySelectorAll(`#${id} tbody tr`).length > 0;
+
+    return subtotal;
+}
+
+function somaLista(lista){
+    return (lista || []).reduce((acc, i) =>
+        acc + (parseFloat(i.qtd) || 0) * (parseFloat(i.preco) || 0), 0);
+}
+
+function atualizarTudo(){
+    const subAssai = atualizarTabela("assaiTable");
+    const subAmazon = atualizarTabela("amazonTable");
+
+    totalMesAtual = subAssai + subAmazon;
+
+    document.getElementById("subAssai").innerText = brl(subAssai);
+    document.getElementById("subAmazon").innerText = brl(subAmazon);
+    document.getElementById("totalGeral").innerText = brl(totalMesAtual);
+
+    const totalAnt = somaLista(anterior.assai) + somaLista(anterior.amazon);
+    document.getElementById("totalAnterior").innerText =
+        (anterior.assai || anterior.amazon) ? `Mês anterior: ${brl(totalAnt)}` : "";
+}
+
+function addItem(tipo){
+    const tbody = document.querySelector(`#${tipo}Table tbody`);
+    const tr = criarLinha({ nome: "Novo item", qtd: 1, preco: 0 });
+    tbody.appendChild(tr);
+
+    atualizarTudo();
+    salvar();
+
+    // já deixa o nome selecionado para digitar por cima
+    const cel = tr.querySelector(".item-name");
+    cel.focus();
+    getSelection().selectAllChildren(cel);
+}
+
+/* ---------- Remover item (com opção de desfazer) ---------- */
+
+document.addEventListener("click", e=>{
+    const btn = e.target.closest(".remove-btn");
+    if(!btn) return;
+
+    const tr = btn.closest("tr");
+    const tbody = tr.parentElement;
+    const proximo = tr.nextElementSibling;
+
+    tr.remove();
+    atualizarTudo();
+    salvar();
+
+    toast("Item removido", false, {
+        label: "Desfazer",
+        fn: () => {
+            tbody.insertBefore(tr, proximo && proximo.parentElement === tbody ? proximo : null);
+            atualizarTudo();
+            salvar();
+        }
+    });
+});
+
+/* ---------- PDF do mês ---------- */
+
+async function gerarPDFMes(){
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF();
+
+    const mesNome = meses[mesSelect.value];
+    const ano = anoSelect.value;
+
+    let y = 15;
+
+    // CABEÇALHO
+    docPDF.setFillColor(30, 41, 59);
+    docPDF.rect(0, 0, 210, 30, "F");
+
+    docPDF.setTextColor(255,255,255);
+    docPDF.setFontSize(16);
+    docPDF.text("RELATÓRIO DE COMPRAS", 105, 12, null, null, "center");
+
+    docPDF.setFontSize(11);
+    docPDF.text(`${mesNome} / ${ano}`, 105, 20, null, null, "center");
+
+    y = 40;
+    docPDF.setTextColor(0,0,0);
+
+    function desenharTabela(titulo, tabelaId){
+        docPDF.setFontSize(13);
+        docPDF.text(titulo, 10, y);
+        y += 6;
+
+        docPDF.setFillColor(220,220,220);
+        docPDF.rect(10, y, 190, 8, "F");
+
+        docPDF.setFontSize(10);
+        docPDF.text("Item", 12, y+5);
+        docPDF.text("Qtd", 90, y+5);
+        docPDF.text("Preço", 110, y+5);
+        docPDF.text("Total", 140, y+5);
+        docPDF.text("Var", 170, y+5);
+
+        y += 10;
+
+        let rows = document.querySelectorAll(`#${tabelaId} tbody tr`);
+
+        rows.forEach(r=>{
+            let nome = r.children[0].innerText.trim();
+            let qtd = r.children[1].children[0].value;
+            let preco = (parseFloat(r.children[2].children[0].value) || 0).toFixed(2);
+            let total = r.dataset.total || "0.00";
+            let variacao = r.dataset.var || "-";
+
+            docPDF.setFontSize(9);
+
+            docPDF.text(nome.substring(0,25), 12, y);
+            docPDF.text(qtd.toString(), 92, y);
+            docPDF.text(`R$ ${preco}`, 110, y);
+            docPDF.text(`R$ ${total}`, 140, y);
+            docPDF.text(variacao, 170, y);
+
+            y += 6;
+
+            if(y > 280){
+                docPDF.addPage();
+                y = 15;
+            }
+        });
+
+        y += 5;
+    }
+
+    desenharTabela("ASSAÍ", "assaiTable");
+    desenharTabela("AMAZON", "amazonTable");
+
+    // TOTAL DESTACADO
+    y += 5;
+
+    docPDF.setFillColor(34,197,94);
+    docPDF.rect(10, y, 190, 10, "F");
+
+    docPDF.setTextColor(0,0,0);
+    docPDF.setFontSize(12);
+    docPDF.text(`TOTAL DO MÊS: R$ ${totalMesAtual.toFixed(2)}`, 105, y+7, null, null, "center");
+
+    y += 20;
+
+    // ANÁLISE
+    let analise = "Gasto controlado";
+    if(totalMesAtual > 1000) analise = "Gasto elevado no mês";
+    if(totalMesAtual === 0) analise = "Mês sem compras";
+
+    docPDF.setTextColor(0,0,0);
+    docPDF.setFontSize(11);
+    docPDF.text("Análise:", 10, y);
+    y += 6;
+
+    docPDF.setFontSize(10);
+    docPDF.text(`- ${analise}`, 12, y);
+
+    // rodapé
+    docPDF.setFontSize(8);
+    docPDF.setTextColor(150);
+    docPDF.text(
+        `Gerado automaticamente em ${new Date().toLocaleString("pt-BR")}`,
+        105,
+        290,
+        null,
+        null,
+        "center"
+    );
+
+    docPDF.save(`Relatorio_${mesNome}_${ano}.pdf`);
+}
+
+/* ---------- PDF do ano ---------- */
+
+async function gerarPDFAno(){
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF();
+
+    const ano = anoSelect.value;
+
+    let y = 15;
+
+    docPDF.setFillColor(30, 41, 59);
+    docPDF.rect(0, 0, 210, 30, "F");
+
+    docPDF.setTextColor(255,255,255);
+    docPDF.setFontSize(16);
+    docPDF.text("RELATÓRIO ANUAL", 105, 12, null, null, "center");
+
+    docPDF.setFontSize(11);
+    docPDF.text(`${ano}`, 105, 20, null, null, "center");
+
+    y = 40;
+    docPDF.setTextColor(0,0,0);
+
+    // COLETA DADOS (os 12 meses em paralelo)
+    const snaps = await Promise.all(
+        Array.from({ length: 12 }, (_, m) => getDoc(doc(db, "compras", `${ano}-${m+1}`)))
+    );
+
+    const totais = snaps.map(snap => {
+        if(!snap.exists()) return 0;
+        const dados = snap.data();
+        return somaLista(dados.assai) + somaLista(dados.amazon);
+    });
+
+    // TABELA
+    docPDF.setFontSize(13);
+    docPDF.text("Resumo Mensal", 10, y);
+    y += 6;
+
+    docPDF.setFillColor(220,220,220);
+    docPDF.rect(10, y, 190, 8, "F");
+
+    docPDF.setFontSize(10);
+    docPDF.text("Mês", 20, y+5);
+    docPDF.text("Total (R$)", 140, y+5);
+
+    y += 10;
+
+    totais.forEach((total, i)=>{
+        docPDF.setFontSize(10);
+        docPDF.text(meses[i], 20, y);
+        docPDF.text(total.toFixed(2), 140, y);
+
+        y += 6;
+
+        if(y > 280){
+            docPDF.addPage();
+            y = 15;
+        }
+    });
+
+    // ANÁLISE
+    let soma = totais.reduce((a,b)=>a+b,0);
+    let media = soma / 12;
+    let maior = Math.max(...totais);
+    let menor = Math.min(...totais);
+
+    let mesMaior = meses[totais.indexOf(maior)];
+    let mesMenor = meses[totais.indexOf(menor)];
+
+    y += 10;
+
+    docPDF.setFillColor(34,197,94);
+    docPDF.rect(10, y, 190, 10, "F");
+
+    docPDF.setTextColor(0,0,0);
+    docPDF.setFontSize(12);
+    docPDF.text(`TOTAL NO ANO: R$ ${soma.toFixed(2)}`, 105, y+7, null, null, "center");
+
+    y += 20;
+
+    docPDF.setFontSize(11);
+    docPDF.text("Análise Financeira:", 10, y);
+    y += 6;
+
+    docPDF.setFontSize(10);
+
+    docPDF.text(`• Média mensal: R$ ${media.toFixed(2)}`, 12, y);
+    y += 5;
+
+    docPDF.text(`• Maior gasto: ${mesMaior} (R$ ${maior.toFixed(2)})`, 12, y);
+    y += 5;
+
+    docPDF.text(`• Menor gasto: ${mesMenor} (R$ ${menor.toFixed(2)})`, 12, y);
+    y += 5;
+
+    let analise = "Gastos equilibrados ao longo do ano";
+
+    if(maior > media * 1.5){
+        analise = "Existem picos de gastos em determinados meses";
+    }
+
+    if(soma === 0){
+        analise = "Nenhuma compra registrada no ano";
+    }
+
+    y += 5;
+
+    docPDF.text("Resumo:", 10, y);
+    y += 5;
+
+    docPDF.text(`- ${analise}`, 12, y);
+
+    docPDF.setFontSize(8);
+    docPDF.setTextColor(150);
+    docPDF.text(
+        `Gerado automaticamente em ${new Date().toLocaleString("pt-BR")}`,
+        105,
+        290,
+        null,
+        null,
+        "center"
+    );
+
+    docPDF.save(`Relatorio_Anual_${ano}.pdf`);
+}
+
+/* ---------- Eventos ---------- */
+
+// recalcula na hora enquanto digita
+document.addEventListener("input", ()=>{
+    if(!carregando) atualizarTudo();
+});
+
+// salva ao terminar de editar quantidade/preço
+document.addEventListener("change", (e)=>{
+    if(carregando) return;
+    if(e.target.tagName === "INPUT") salvar();
+});
+
+// nome do item (contenteditable não dispara "change"): salva ao sair do campo
+document.addEventListener("focusout", (e)=>{
+    if(carregando) return;
+    if(e.target.classList && e.target.classList.contains("item-name")) salvar();
+});
+
+// Enter no nome do item confirma em vez de quebrar linha
+document.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && e.target.classList && e.target.classList.contains("item-name")){
+        e.preventDefault();
+        e.target.blur();
+    }
+});
+
+window.addItem = addItem;
+window.carregarMes = carregarMes;
+window.gerarPDFMes = gerarPDFMes;
+window.gerarPDFAno = gerarPDFAno;
+
+carregarMes();
+</script>
+
+</body>
+</html>
