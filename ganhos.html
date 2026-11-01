@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8">
+		<title>Controle de Ganhos</title>
+		<meta name="theme-color" content="#0a0e16">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<style>
+			:root{
+				--bg:#0a0e16;
+				--panel:#111826;
+				--panel-2:#0d131f;
+				--border:#1f2937;
+				--border-soft:#182031;
+				--text:#e2e8f0;
+				--text-dim:#8592a6;
+				--text-faint:#4b5768;
+				--primary:#5b9dff;
+				--primary-soft:rgba(91,157,255,.12);
+				--primary-border:rgba(91,157,255,.35);
+				--success:#3ddc97;
+				--success-soft:rgba(61,220,151,.12);
+				--danger:#ff6b6b;
+				--danger-soft:rgba(255,107,107,.12);
+				--radius:10px;
+				--font-sans:'Inter',system-ui,-apple-system,sans-serif;
+				--font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+			}
+
+			*{box-sizing:border-box}
+
+			body{
+				font-family:var(--font-sans);
+				background:
+					linear-gradient(var(--bg),var(--bg)),
+					repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 48px),
+					repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 48px);
+				color:var(--text);
+				margin:0;
+				padding:32px 20px 90px;
+			}
+
+			.container{max-width:1180px;margin:auto}
+
+			.page-head{margin-bottom:28px}
+			.eyebrow{
+				font-family:var(--font-mono);
+				font-size:11px;
+				letter-spacing:.18em;
+				text-transform:uppercase;
+				color:var(--text-faint);
+				text-align:center;
+				margin-bottom:8px;
+			}
+			h1{
+				text-align:center;
+				font-size:26px;
+				font-weight:800;
+				letter-spacing:-.01em;
+				margin:0;
+			}
+			h3{text-align:left;margin:0 0 4px;font-weight:600;font-size:15px}
+
+			.card{
+				background:var(--panel);
+				border:1px solid var(--border);
+				border-radius:var(--radius);
+				padding:22px;
+				margin-bottom:22px;
+				box-shadow:0 12px 30px -18px rgba(0,0,0,.6);
+			}
+			.header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 22px}
+			.header strong{
+				font-family:var(--font-mono);
+				font-size:11px;
+				letter-spacing:.12em;
+				text-transform:uppercase;
+				color:var(--text-faint);
+				font-weight:600;
+			}
+
+			select,input{
+				background:var(--panel-2);
+				color:var(--text);
+				border:1px solid var(--border);
+				padding:9px 12px;
+				border-radius:7px;
+				width:100%;
+				font-family:var(--font-mono);
+				font-size:13px;
+			}
+			#ano{width:auto;min-width:110px;cursor:pointer}
+			select:focus,input:focus{
+				outline:none;
+				border-color:var(--primary-border);
+				box-shadow:0 0 0 3px var(--primary-soft);
+			}
+
+			.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:4px}
+			.tab{
+				padding:11px 18px;
+				cursor:pointer;
+				color:var(--text-dim);
+				font-family:var(--font-mono);
+				font-size:12px;
+				letter-spacing:.06em;
+				text-transform:uppercase;
+				border-bottom:2px solid transparent;
+				transition:color .15s,border-color .15s;
+			}
+			.tab:hover{color:var(--text)}
+			.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+
+			.content{display:none;padding-top:16px}
+			.content.active{display:block}
+
+			table{width:100%;border-collapse:collapse;margin-top:6px;border:1px solid var(--border-soft);border-radius:8px;overflow:hidden}
+			th,td{padding:11px 10px;text-align:center;border-bottom:1px solid var(--border-soft)}
+			tr:last-child td{border-bottom:none}
+			th{
+				background:var(--panel-2);
+				color:var(--text-faint);
+				font-family:var(--font-mono);
+				font-size:10.5px;
+				letter-spacing:.08em;
+				text-transform:uppercase;
+				font-weight:600;
+			}
+			td{font-family:var(--font-mono);font-size:13px}
+
+			.resumo-top{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+			.resumo-bottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:16px}
+			.resumo-top div,.resumo-bottom div{
+				background:var(--panel-2);
+				border:1px solid var(--border-soft);
+				padding:16px;
+				border-radius:8px;
+				text-align:center;
+				font-family:var(--font-mono);
+				font-size:10.5px;
+				letter-spacing:.08em;
+				text-transform:uppercase;
+				color:var(--text-faint);
+			}
+			.valor{
+				font-family:var(--font-mono);
+				font-size:21px;
+				font-weight:700;
+				margin-top:8px;
+				color:#3ddc97!important;
+				text-shadow:0 0 12px rgba(61,220,151,.55),0 0 28px rgba(61,220,151,.25);
+				letter-spacing:-.01em;
+			}
+			.resumo-bottom .valor{font-size:16px}
+			.positivo{
+				color:var(--success)!important;
+				text-shadow:0 0 12px rgba(61,220,151,.6),0 0 28px rgba(61,220,151,.28)!important;
+			}
+			.negativo{
+				color:var(--danger)!important;
+				text-shadow:0 0 12px rgba(255,107,107,.6),0 0 28px rgba(255,107,107,.28)!important;
+			}
+
+			.mes-atual td{background:var(--primary-soft)}
+			.mes-atual td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
+
+			.heat-0{background:transparent}
+			.heat-1{background:rgba(61,220,151,.05)}
+			.heat-2{background:rgba(61,220,151,.09)}
+			.heat-3{background:rgba(61,220,151,.14)}
+			.heat-4{background:rgba(61,220,151,.2);font-weight:600}
+
+			.toast{
+				position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+				background:var(--panel);border:1px solid var(--border);color:var(--text);
+				padding:10px 20px 10px 16px;border-radius:8px;opacity:0;transition:.3s;
+				font-family:var(--font-mono);font-size:13px;display:flex;align-items:center;gap:8px;
+				box-shadow:0 12px 30px -10px rgba(0,0,0,.6);
+			}
+			.toast::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--success)}
+			.toast.show{opacity:1}
+
+			.assinatura{
+				position:fixed;bottom:16px;right:18px;text-align:right;
+				font-family:var(--font-mono);font-size:11px;letter-spacing:.05em;
+				color:var(--text-faint);user-select:none;
+			}
+			.assinatura strong{color:var(--text-dim);font-weight:600}
+			.assinatura span{display:block;font-size:10px;margin-top:2px;color:var(--text-faint)}
+
+			.backup-bar{
+				display:flex;justify-content:space-between;align-items:center;gap:12px;
+				background:var(--panel-2);padding:14px 18px;border-radius:10px;
+				margin:0 0 22px;border:1px solid var(--border-soft);
+			}
+			.backup-status{
+				font-family:var(--font-mono);font-size:12.5px;
+				display:flex;align-items:center;gap:9px;color:var(--text-dim);
+			}
+			.backup-status strong{color:var(--text);font-weight:600}
+			.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none}
+			.dot-ok{background:var(--success)}
+			.dot-warn{background:var(--danger)}
+
+			.backup-actions{display:flex;gap:10px}
+			.backup-actions button{
+				background:var(--panel);border:1px solid var(--border);color:var(--text);
+				font-family:var(--font-mono);font-size:12px;letter-spacing:.03em;
+				padding:9px 15px;border-radius:7px;cursor:pointer;transition:.15s;
+			}
+			.backup-actions button:hover{border-color:var(--primary-border);color:var(--primary)}
+
+			.metaBar{background:var(--border-soft);height:4px;border-radius:4px;overflow:hidden;margin-top:6px}
+			.metaBar div{background:var(--success);height:100%;transition:.4s}
+
+			.previsao-box{
+				background:var(--panel-2);
+				border:1px solid var(--border-soft);
+				border-radius:10px;
+				padding:20px;
+				text-align:center;
+			}
+			.previsao-box .eyebrow{margin-bottom:6px}
+			#previsao{
+				margin-top:6px;
+				font-family:var(--font-mono);
+				font-size:26px;
+				font-weight:700;
+				color:var(--success);
+			}
+
+			#loginContainer input{margin-bottom:10px}
+
+			.fab{
+				position:fixed;
+				left:22px;
+				bottom:22px;
+				width:54px;height:54px;
+				border-radius:50%;
+				border:none;
+				background:var(--primary);
+				color:#04101f;
+				font-size:26px;
+				font-weight:700;
+				line-height:1;
+				cursor:pointer;
+				display:flex;align-items:center;justify-content:center;
+				box-shadow:0 10px 30px -8px rgba(91,157,255,.6);
+				transition:transform .15s,box-shadow .15s;
+				z-index:500;
+			}
+			.fab:hover{transform:translateY(-2px);box-shadow:0 14px 34px -8px rgba(91,157,255,.8)}
+			.fab:active{transform:translateY(0)}
+
+			.modal-overlay{
+				position:fixed;inset:0;
+				background:rgba(5,8,14,.72);
+				backdrop-filter:blur(2px);
+				display:flex;align-items:center;justify-content:center;
+				opacity:0;pointer-events:none;
+				transition:opacity .18s;
+				z-index:1000;
+			}
+			.modal-overlay.show{opacity:1;pointer-events:auto}
+			.modal-panel{
+				background:var(--panel);
+				border:1px solid var(--border);
+				border-radius:12px;
+				padding:26px;
+				width:320px;
+				box-shadow:0 24px 60px -20px rgba(0,0,0,.75);
+				transform:translateY(8px);
+				transition:transform .18s;
+			}
+			.modal-overlay.show .modal-panel{transform:translateY(0)}
+			.modal-label{
+				display:block;
+				font-family:var(--font-mono);
+				font-size:10.5px;
+				letter-spacing:.08em;
+				text-transform:uppercase;
+				color:var(--text-faint);
+				margin:14px 0 6px;
+			}
+			.modal-label:first-of-type{margin-top:4px}
+			.modal-actions{display:flex;gap:10px;margin-top:22px}
+			.modal-actions button{
+				flex:1;padding:10px;border-radius:7px;
+				font-family:var(--font-sans);font-size:13px;font-weight:600;
+				cursor:pointer;border:1px solid var(--border);
+			}
+			.modal-btn-secondary{background:var(--panel-2);color:var(--text-dim)}
+			.modal-btn-secondary:hover{color:var(--text)}
+			.modal-btn-primary{background:var(--primary);color:#04101f;border-color:var(--primary)}
+			.modal-btn-primary:hover{filter:brightness(1.08)}
+
+			.lancamentos-lista{display:flex;flex-direction:column}
+			.lancamento-item{
+				padding:14px 4px;
+				border-bottom:1px solid var(--border-soft);
+				display:flex;flex-direction:column;gap:5px;
+			}
+			.lancamento-item:last-child{border-bottom:none}
+			.lancamento-main{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+			.lancamento-fonte{
+				font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+				color:var(--primary);background:var(--primary-soft);border:1px solid var(--primary-border);
+				padding:3px 8px;border-radius:5px;
+			}
+			.lancamento-mes{font-family:var(--font-mono);font-size:12px;color:var(--text-dim)}
+			.lancamento-valor{
+				margin-left:auto;font-family:var(--font-mono);font-weight:700;font-size:14px;
+				color:#3ddc97;text-shadow:0 0 10px rgba(61,220,151,.4);
+			}
+			.lancamento-remover{
+				background:none;border:none;color:var(--text-faint);cursor:pointer;
+				font-size:13px;line-height:1;padding:4px 6px;border-radius:6px;
+				transition:color .15s,background .15s;flex:none;
+			}
+			.lancamento-remover:hover{color:var(--danger);background:var(--danger-soft)}
+			.lancamento-obs{font-size:13px;color:var(--text)}
+			.lancamento-data{font-family:var(--font-mono);font-size:10px;color:var(--text-faint)}
+			.lancamento-vazio{
+				text-align:center;color:var(--text-faint);font-family:var(--font-mono);
+				font-size:12.5px;padding:24px 0;
+			}
+
+			.lancamentos-header{
+				display:flex;justify-content:space-between;
+				padding:0 16px 10px;
+				font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;
+				text-transform:uppercase;color:var(--text-faint);
+			}
+
+			.mes-grupo{
+				border:1px solid var(--border-soft);
+				border-radius:9px;
+				margin-bottom:10px;
+				overflow:hidden;
+				background:var(--panel-2);
+			}
+			.mes-grupo:last-child{margin-bottom:0}
+			.mes-grupo-header{
+				display:flex;align-items:center;gap:12px;
+				padding:14px 16px;cursor:pointer;user-select:none;
+				transition:background .15s;
+			}
+			.mes-grupo-header:hover{background:rgba(255,255,255,.03)}
+			.mes-grupo-icone{font-size:16px;flex:none}
+			.mes-grupo-titulo{
+				font-family:var(--font-mono);font-size:13px;font-weight:600;
+				color:var(--text);letter-spacing:.02em;flex:1;
+			}
+			.mes-grupo-count{color:var(--text-faint);font-weight:400;margin-left:6px}
+			.mes-grupo-chevron{
+				font-size:15px;color:var(--text-faint);
+				transition:transform .2s,color .2s;flex:none;
+			}
+			.mes-grupo-chevron.aberto{transform:rotate(90deg);color:var(--primary)}
+			.mes-grupo-body{
+				display:grid;
+				grid-template-rows:0fr;
+				overflow:hidden;
+				transition:grid-template-rows .28s ease;
+			}
+			.mes-grupo-body.show{grid-template-rows:1fr}
+			.mes-grupo-body-inner{
+				min-height:0;
+				overflow:hidden;
+				padding:2px 16px 8px;
+				border-top:1px solid var(--border-soft);
+			}
+		</style>
+	</head>
+	<body>
+		<!-- LOGIN -->
+		<div id="loginContainer" style="
+		    position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);
+		    display:flex;justify-content:center;align-items:center;z-index:9999;">
+		    <div style="background:var(--panel);border:1px solid var(--border);padding:32px;border-radius:12px;width:320px;text-align:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.7);">
+		      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px;">Acesso restrito</div>
+		      <h2 style="color:var(--text);margin:0 0 20px;font-size:18px;">Entrar</h2>
+		      <input type="email" id="loginEmail" placeholder="Email">
+		      <input type="password" id="loginSenha" placeholder="Senha">
+		      <button id="btnLogin" style="width:100%;padding:10px;border:none;border-radius:7px;background:var(--primary);color:#04101f;font-weight:700;font-family:var(--font-sans);cursor:pointer;">Entrar</button>
+		      <div id="loginErro" style="color:var(--danger);margin-top:10px;font-size:13px;font-family:var(--font-mono);"></div>
+		    </div>
+		</div>
+		<div class="page-head">
+			<div class="eyebrow">// painel financeiro pessoal</div>
+			<h1>Controle de Ganhos</h1>
+		</div>
+		<div class="container" id="mainContent">
+			<div class="card header">
+				<strong>Ano de referência</strong>
+				<select id="ano" onchange="trocarAno()"></select>
+			</div>
+			<div class="backup-bar">
+				<div class="backup-status" id="statusBackup"></div>
+				<div class="backup-actions">
+					<button onclick="exportarBackup()">↓ Backup</button>
+					<input type="file" id="importFile" accept=".json" hidden onchange="importarBackup(event)">
+					<button onclick="document.getElementById('importFile').click()">↑ Importar</button>
+				</div>
+			</div>
+			<div class="card">
+				<!-- TOPO: 3 cards grandes -->
+				<div class="resumo-top">
+					<div>
+						Total anual
+						<div class="valor" id="totalAnual">R$0</div>
+					</div>
+					<div>
+						Ano anterior
+						<div class="valor" id="totalAnterior">R$0</div>
+					</div>
+					<div>
+						Diferença
+						<div class="valor" id="diferenca">R$0</div>
+					</div>
+				</div>
+				<!-- BAIXO: 5 cards pequenos -->
+				<div class="resumo-bottom">
+					<div>
+						Salário
+						<div class="valor" id="total_salario">R$0</div>
+					</div>
+					<div>
+						Petz
+						<div class="valor" id="total_petz">R$0</div>
+					</div>
+					<div>
+						Amazon
+						<div class="valor" id="total_amazon">R$0</div>
+					</div>
+					<div>
+						Epseg
+						<div class="valor" id="total_epseg">R$0</div>
+					</div>
+					<div>
+						Jamic
+						<div class="valor" id="total_jamic">R$0</div>
+					</div>
+					<div>
+						Outros
+						<div class="valor" id="total_outros">R$0</div>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="tabs">
+					<div class="tab active" onclick="trocarAba(0)">Salário</div>
+					<div class="tab" onclick="trocarAba(1)">Petz</div>
+					<div class="tab" onclick="trocarAba(2)">Amazon</div>
+					<div class="tab" onclick="trocarAba(3)">Epseg</div>
+					<div class="tab" onclick="trocarAba(4)">Jamic</div>
+					<div class="tab" onclick="trocarAba(5)">Outros</div>
+				</div>
+				<div id="salario" class="content active"></div>
+				<div id="petz" class="content"></div>
+				<div id="amazon" class="content"></div>
+				<div id="epseg" class="content"></div>
+				<div id="jamic" class="content"></div>
+				<div id="outros" class="content"></div>
+			</div>
+			<div class="card">
+				<h3 id="tituloComparativo"></h3>
+				<div id="comparativoMensal"></div>
+			</div>
+			<div class="card">
+				<h3 style="text-align:center;margin-bottom:14px">Previsão do ano</h3>
+				<div class="previsao-box">
+					<div class="eyebrow" style="margin:0">baseada na média atual e no ano anterior</div>
+					<div id="previsao">R$ 0,00</div>
+				</div>
+			</div>
+			<div class="card">
+				<h3 style="margin-bottom:14px">Evolução mensal</h3>
+				<canvas id="graficoAnual" height="90"></canvas>
+			</div>
+			<div class="card">
+				<h3 style="margin-bottom:4px">🗂️ Histórico</h3>
+				<div class="eyebrow" style="text-align:left;margin:0 0 18px">de onde veio cada valor lançado pelo atalho, por mês</div>
+				<div class="lancamentos-header">
+					<span>Mês</span>
+					<span>Lançamentos</span>
+				</div>
+				<div id="listaLancamentos" class="lancamentos-lista"></div>
+			</div>
+		</div>
+		<div class="toast" id="toast">Dados salvos</div>
+
+		<button class="fab" id="btnLancamentoRapido" onclick="abrirLancamentoRapido()" title="Lançamento rápido">+</button>
+
+		<div class="modal-overlay" id="modalRapido" onclick="fecharLancamentoRapidoClick(event)">
+			<div class="modal-panel">
+				<div class="eyebrow" style="margin:0 0 4px;text-align:left">lançamento rápido</div>
+				<h3 style="margin:0 0 4px;font-size:17px">Novo valor</h3>
+
+				<label class="modal-label">Fonte</label>
+				<select id="rapidoFonte" onchange="atualizarValorRapido()">
+					<option value="salario">Salário</option>
+					<option value="petz">Petz</option>
+					<option value="amazon">Amazon</option>
+					<option value="epseg">Epseg</option>
+					<option value="jamic">Jamic</option>
+					<option value="outros">Outros</option>
+				</select>
+
+				<label class="modal-label">Mês</label>
+				<select id="rapidoMes" onchange="atualizarValorRapido()"></select>
+
+				<label class="modal-label" style="display:flex;justify-content:space-between;align-items:baseline">
+					<span>Valor a somar</span>
+					<span id="rapidoAtualLabel" style="text-transform:none;letter-spacing:0;font-family:var(--font-mono);color:var(--text-faint)"></span>
+				</label>
+				<input type="text" id="rapidoValor" placeholder="R$ 0,00"
+					oninput="previewLancamentoRapido()"
+					onblur="formatarMoeda(this)"
+					onkeydown="if(event.key==='Enter'){event.preventDefault();salvarLancamentoRapido();}">
+
+				<label class="modal-label">Observação</label>
+				<input type="text" id="rapidoObs" placeholder="De onde veio esse valor?" maxlength="80"
+					onkeydown="if(event.key==='Enter'){event.preventDefault();salvarLancamentoRapido();}">
+
+				<div class="modal-actions">
+					<button class="modal-btn-secondary" onclick="fecharLancamentoRapido()">Cancelar</button>
+					<button class="modal-btn-primary" onclick="salvarLancamentoRapido()">Salvar</button>
+				</div>
+			</div>
+		</div>
+		<!-- Firebase -->
+		<script type="module">
+			import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+			import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+			import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+			
+			const firebaseConfig = {
+			  apiKey: "AIzaSyDQcM-q2jwZMshHnuf-jRfaxeYSmsjNCUs",
+			  authDomain: "controle-ganhos-6ec22.firebaseapp.com",
+			  projectId: "controle-ganhos-6ec22",
+			  storageBucket: "controle-ganhos-6ec22.firebasestorage.app",
+			  messagingSenderId: "590231444558",
+			  appId: "1:590231444558:web:2417aa6044f2a86e18371f"
+			};
+			
+			const app = initializeApp(firebaseConfig);
+			const db = getFirestore(app);
+			const auth = getAuth(app);
+			
+			window.db = db;
+			window.doc = doc;
+			window.setDoc = setDoc;
+			window.getDoc = getDoc;
+
+			btnLogin.addEventListener("click", () => {
+			  const email = document.getElementById("loginEmail").value;
+			  const senha = document.getElementById("loginSenha").value;
+		
+			  loginErro.innerText = "";
+			  signInWithEmailAndPassword(auth, email, senha)
+				.then(userCredential => {
+				  loginContainer.style.display = "none";
+				  mainContent.style.display = "block";
+				})
+				.catch(error => {
+				  loginErro.innerText = "Email ou senha incorretos!";
+				  console.error(error);
+				});
+			});
+		
+			// Monitora estado do usuário
+			onAuthStateChanged(auth, (user) => {
+			  if (user) {
+				loginContainer.style.display = "none";
+				mainContent.style.display = "block";
+			  } else {
+				loginContainer.style.display = "flex";
+				mainContent.style.display = "none";
+			  }
+			});
+		</script>
+		<script>
+			let debounceTimer;
+			let metaMensal = 3500;
+			let dadosFirebase = {};
+			const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+			const abas=["salario","petz","amazon","epseg","jamic","outros"];
+			let grafico;
+			let trocandoAno = false;
+			let dadosAnoAnteriorCache = {};
+			let lancamentos = [];
+			
+			function criarTabela(id){
+			let html="<table><tr><th>Mês</th><th>Valor</th></tr>";
+			meses.forEach((m,i)=>{
+				html += `<tr class="${i === new Date().getMonth() ? 'mes-atual' : ''}">
+				            <td>${m}</td>
+				            <td>
+				                <input data-id="${id}_${i}" 
+				                       onfocus="salvarCampo(this)" 
+				                       onblur="formatarMoeda(this); salvarDados(this)" 
+				                       oninput="lerInputsTempoReal(this)">
+				            </td>
+				         </tr>`;
+			});
+			html+="</table>";
+			document.getElementById(id).innerHTML=html;
+			}
+			abas.forEach(criarTabela);
+			
+			async function lerInputsTempoReal(el) {
+			    const inputAlterado = el; // captura o input que disparou o evento
+			
+			    let dados = {};
+			    abas.forEach(a => {
+			        dados[a] = meses.map((_, i) => {
+			            const el = document.querySelector(`[data-id='${a}_${i}']`);
+			            return Number(el.value.replace(/[^\d]/g, "")) / 100 || 0;
+			        });
+			    });
+			
+			    dadosFirebase = dados;
+			
+			    // Atualiza totais, gráficos e comparativos
+			    await atualizarTudo(dadosFirebase);
+			}
+			
+			function formatarMoeda(el){
+			let v=parseFloat(el.value.replace(/[^\d]/g,""))/100||0;
+			el.value=v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+			}
+			
+			function salvarCampo(el){
+			localStorage.setItem("ultimoCampo",el.dataset.id);
+			}
+			function salvarAno(){
+			    localStorage.setItem("anoSelecionado", document.getElementById("ano").value);
+			}
+			async function trocarAno(){
+			
+			  trocandoAno = true;
+			
+			  salvarAno();
+			
+			  await carregarDados();   // ⬅ espera Firebase terminar
+			
+			  trocandoAno = false;
+			}
+			
+			async function salvarDados(el) {
+			  if (trocandoAno) return;
+			
+			  const ano = anoSel();
+			  let dados = {};
+			
+			  abas.forEach(a => {
+			    dados[a] = meses.map((_, i) => {
+			      let input = document.querySelector(`[data-id='${a}_${i}']`);
+			      return Number(input.value.replace(/[^\d]/g, "")) / 100 || 0;
+			    });
+			  });
+			
+			  dadosFirebase = dados;
+			
+			  await setDoc(doc(db, "ganhos", String(ano)), dados);
+			
+			  atualizarTudo(dadosFirebase);
+			  toast();
+			
+			}
+			
+			async function carregarDados(){
+			    const ano = anoSel();
+			    const snap = await getDoc(doc(db,"ganhos",String(ano))); 
+			    const dadosAnoAtual = snap.exists() ? snap.data() : {};
+			
+			    // carrega dados nas tabelas
+			    abas.forEach(a=>{
+			        meses.forEach((_,i)=>{
+			            let el = document.querySelector(`[data-id='${a}_${i}']`);
+			            if(el) el.value = (dadosAnoAtual[a]?.[i] || 0)
+			                .toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+			        });
+			    });
+			
+			    restaurarCampo();
+			
+			    // chama atualizarTudo passando dados explicitamente
+			    await atualizarTudo(dadosAnoAtual);
+			
+			    await carregarLancamentos(ano);
+			}
+			
+			async function carregarLancamentos(ano){
+			    try{
+			        const snap = await getDoc(doc(db,"lancamentos",String(ano)));
+			        lancamentos = snap.exists() ? (snap.data().itens || []) : [];
+			    }catch(e){
+			        console.error("Erro ao carregar lançamentos (verifique as regras do Firestore para a coleção 'lancamentos'):", e);
+			        lancamentos = [];
+			    }
+			    renderLancamentos();
+			}
+			
+			function escapeHtml(texto){
+			    const d = document.createElement("div");
+			    d.textContent = texto;
+			    return d.innerHTML;
+			}
+			
+			function renderLancamentos(){
+			    const el = document.getElementById("listaLancamentos");
+			    if(!el) return;
+			
+			    if(!lancamentos.length){
+			        el.innerHTML = `<div class="lancamento-vazio">Nenhum lançamento registrado ainda</div>`;
+			        return;
+			    }
+			
+			    const nomes = {salario:"Salário",petz:"Petz",amazon:"Amazon",epseg:"Epseg",jamic:"Jamic",outros:"Outros"};
+			    const ano = anoSel();
+			
+			    const porMes = {};
+			    lancamentos.forEach(l=>{
+			        if(!porMes[l.mes]) porMes[l.mes] = [];
+			        porMes[l.mes].push(l);
+			    });
+			
+			    const mesesOrdenados = Object.keys(porMes).map(Number).sort((a,b)=>b-a);
+			
+			    el.innerHTML = mesesOrdenados.map((mesIdx, idx)=>{
+			        const itens = porMes[mesIdx].slice().sort((a,b)=> new Date(b.data) - new Date(a.data));
+			        const idGrupo = `grupoMes${mesIdx}`;
+			        const aberto = idx === 0;
+			
+			        const itensHtml = itens.map(l=>`
+			            <div class="lancamento-item">
+			                <div class="lancamento-main">
+			                    <span class="lancamento-fonte">${nomes[l.fonte] || l.fonte}</span>
+			                    <span class="lancamento-valor">+ ${Number(l.valor||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</span>
+			                    <button class="lancamento-remover" onclick="removerLancamento('${l.data}','${l.fonte}',${l.mes})" title="Remover lançamento">✕</button>
+			                </div>
+			                ${l.obs ? `<div class="lancamento-obs">${escapeHtml(l.obs)}</div>` : ""}
+			                <div class="lancamento-data">${l.data ? new Date(l.data).toLocaleString("pt-BR") : ""}</div>
+			            </div>
+			        `).join("");
+			
+			        return `
+			            <div class="mes-grupo">
+			                <div class="mes-grupo-header" onclick="toggleGrupoMes('${idGrupo}')">
+			                    <span class="mes-grupo-icone">📅</span>
+			                    <span class="mes-grupo-titulo">
+			                        ${meses[mesIdx].toUpperCase()} DE ${ano}
+			                        <span class="mes-grupo-count">(${itens.length} lançamento${itens.length !== 1 ? "s" : ""})</span>
+			                    </span>
+			                    <span class="mes-grupo-chevron${aberto ? " aberto" : ""}" id="${idGrupo}_chevron">›</span>
+			                </div>
+			                <div class="mes-grupo-body${aberto ? " show" : ""}" id="${idGrupo}">
+			                    <div class="mes-grupo-body-inner">
+			                        ${itensHtml}
+			                    </div>
+			                </div>
+			            </div>
+			        `;
+			    }).join("");
+			}
+			
+			function toggleGrupoMes(id){
+			    const body = document.getElementById(id);
+			    const chevron = document.getElementById(id + "_chevron");
+			    const aberto = body.classList.toggle("show");
+			    chevron.classList.toggle("aberto", aberto);
+			}
+			
+			async function removerLancamento(dataId, fonte, mes){
+			    if(!confirm("Remover esse lançamento? O valor será subtraído do total.")) return;
+			
+			    const idx = lancamentos.findIndex(l => l.data === dataId && l.fonte === fonte && l.mes === mes);
+			    if(idx === -1) return;
+			
+			    const entrada = lancamentos[idx];
+			    lancamentos.splice(idx, 1);
+			
+			    const ano = anoSel();
+			    const valorAtualAba = dadosFirebase?.[fonte]?.[mes] || 0;
+			    const novoValor = Math.max(0, valorAtualAba - Number(entrada.valor || 0));
+			
+			    const inputTabela = document.querySelector(`[data-id='${fonte}_${mes}']`);
+			    if(inputTabela){
+			        inputTabela.value = novoValor.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+			        await salvarDados(inputTabela);
+			    }
+			
+			    try{
+			        await setDoc(doc(db,"lancamentos",String(ano)), { itens: lancamentos });
+			    }catch(e){
+			        console.error("Erro ao remover o lançamento (verifique as regras do Firestore para a coleção 'lancamentos'):", e);
+			    }
+			
+			    renderLancamentos();
+			}
+			
+			function toggleGrupoMes(id){
+			    const body = document.getElementById(id);
+			    const chevron = document.getElementById(id + "_chevron");
+			    const aberto = body.classList.toggle("show");
+			    chevron.classList.toggle("aberto", aberto);
+			}
+			function progressoMes(i){
+			  const vals = totais();
+			  let p = (vals[i] / metaMensal) * 100;
+			  return Math.min(100, Math.max(0, p));
+			}
+			async function previsaoAnualComparativa(){
+			
+			    const anoAtual = anoSel();
+			    const anoAnterior = anoAtual - 1;
+			
+			    const snapAnt = await getDoc(doc(db,"ganhos",String(anoAnterior)));
+			    const dadosAnt = snapAnt.exists() ? snapAnt.data() : {};
+			
+			    const atual = totais();
+			
+			    let totalRealizado = 0;
+			    let crescimentoTotal = 0;
+			    let mesesComparados = 0;
+			
+			    for(let i=0;i<12;i++){
+			
+			        const valorAtual = atual[i];
+			
+			        const valorAnt = abas.reduce(
+			            (s,a)=>s+(dadosAnt[a]?.[i]||0),
+			            0
+			        );
+			
+			        if(valorAtual > 0){
+			
+			            totalRealizado += valorAtual;
+			
+			            if(valorAnt > 0){
+			                crescimentoTotal += ((valorAtual - valorAnt) / valorAnt);
+			                mesesComparados++;
+			            }
+			        }
+			    }
+			
+			    const crescimentoMedio =
+			        mesesComparados > 0
+			        ? crescimentoTotal / mesesComparados
+			        : 0;
+			
+			    let previsao = totalRealizado;
+			
+			    for(let i=0;i<12;i++){
+			
+			        if(atual[i] > 0) continue;
+			
+			        const valorAnt = abas.reduce(
+			            (s,a)=>s+(dadosAnt[a]?.[i]||0),
+			            0
+			        );
+			
+			        previsao += valorAnt * (1 + crescimentoMedio);
+			    }
+			
+			    return previsao;
+			}
+			
+			async function atualizarTudo(dadosAtual){
+			    const ano = anoSel();
+			    const ant = ano - 1;
+			
+			    dadosFirebase = dadosAtual; // atualiza global apenas depois
+			
+			    // total anual
+				animar("totalAnual", totalAno()); 
+			
+			    // previsão anual
+			    const prev = await previsaoAnualComparativa();
+			    document.getElementById("previsao").innerText =
+			        prev.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+			
+			    // dados ano anterior
+			    const snapAnt = await getDoc(doc(db,"ganhos",String(ant)));
+			    const dadosAnt = snapAnt.exists() ? snapAnt.data() : {};
+			    dadosAnoAnteriorCache = dadosAnt;
+			    const totalAnt = meses.reduce((t,_,i)=>
+			        t + abas.reduce((s,a)=>s+(dadosAnt[a]?.[i]||0),0),0
+			    );
+				animar("totalAnterior", totalAnt);
+			    const diffAno = totalAno() - totalAnt;
+			    animar("diferenca", diffAno);
+			    const elDiferenca = document.getElementById("diferenca");
+			    elDiferenca.classList.toggle("positivo", diffAno >= 0);
+			    elDiferenca.classList.toggle("negativo", diffAno < 0);
+			
+			    gerarComparativo(ano,ant,dadosAtual,dadosAnt);
+			
+			    animar("total_salario", totalPorAba("salario"));
+			    animar("total_petz", totalPorAba("petz"));
+			    animar("total_amazon", totalPorAba("amazon"));
+			    animar("total_epseg", totalPorAba("epseg"));
+				animar("total_jamic", totalPorAba("jamic"));
+				animar("total_outros", totalPorAba("outros"));
+			
+			}
+			
+			function previewTotais(dadosAtual){
+			    const totaisLocal = meses.map((_,i)=>
+			        abas.reduce((s,a)=>s+(dadosAtual[a]?.[i]||0),0)
+			    );
+			    const totalAnualLocal = totaisLocal.reduce((a,b)=>a+b,0);
+			    animar("totalAnual", totalAnualLocal);
+
+			    const totalAntLocal = meses.reduce((t,_,i)=>
+			        t + abas.reduce((s,a)=>s+(dadosAnoAnteriorCache[a]?.[i]||0),0),0
+			    );
+			    const diffLocal = totalAnualLocal - totalAntLocal;
+			    animar("diferenca", diffLocal);
+			    const elDiferenca = document.getElementById("diferenca");
+			    elDiferenca.classList.toggle("positivo", diffLocal >= 0);
+			    elDiferenca.classList.toggle("negativo", diffLocal < 0);
+
+			    abas.forEach(a=>{
+			        const totalAba = (dadosAtual[a] || []).reduce((s,v)=>s+v,0);
+			        animar(`total_${a}`, totalAba);
+			    });
+			}
+
+			function animar(id,valor){
+			let el=document.getElementById(id),i=0;
+			const step=valor/30;
+			const timer=setInterval(()=>{
+			i+=step;
+			if(Math.abs(i)>=Math.abs(valor)){i=valor;clearInterval(timer)}
+			el.innerText=i.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+			},20);
+			}
+			
+			async function gerarComparativo(ano, ant, dadosAtual, dadosAnt){
+			    let atual = meses.map((_,i)=>abas.reduce((s,a)=>s+(dadosAtual[a]?.[i]||0),0));
+			    let antigo = meses.map((_,i)=>abas.reduce((s,a)=>s+(dadosAnt[a]?.[i]||0),0));
+			
+			    let totalAtual = atual.reduce((a,b)=>a+b,0);
+			    let totalAntigo = antigo.reduce((a,b)=>a+b,0);
+			
+			    let diffAno = totalAtual - totalAntigo;
+			    let percAno = totalAntigo ? (diffAno / totalAntigo * 100) : 0;
+			
+			    document.getElementById("tituloComparativo").innerHTML = `
+			        <span style="font-family:var(--font-mono);color:var(--text-dim);font-weight:400">${ant} → ${ano}</span> · 
+			        Diferença anual: 
+			        <strong style="font-family:var(--font-mono);color:${diffAno>=0?'#3ddc97':'#ff6b6b'}">
+			          ${diffAno.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+			          (${percAno.toFixed(1)}%)
+			        </strong>
+			    `;
+			
+			    let max = Math.max(...atual.filter(v=>v>0), 0);
+			    let html = `<table>
+			        <tr>
+			          <th>Mês</th>
+			          <th>${ant}</th>
+			          <th>${ano}</th>
+			          <th>Δ R$</th>
+			          <th>%</th>
+			          <th>Tend.</th>
+			        </tr>`;
+			
+			    meses.forEach((m,i)=>{
+			        if(atual[i] === 0){
+			            html += `<tr class="heat-0">
+			                <td>${m}</td>
+			                <td>${antigo[i].toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</td>
+			                <td style="opacity:.5">— não informado —</td>
+			                <td>—</td>
+			                <td>—</td>
+			                <td style="color:var(--text-faint)">···</td>
+			            </tr>`;
+			            return;
+			        }
+			
+			        let diff = atual[i] - antigo[i];
+			        let perc = antigo[i] ? (diff/antigo[i]*100) : 0;
+			        let heat = max ? Math.min(4, Math.floor((atual[i]/max)*4)) : 0;
+			        let seta = diff > 0 ? '<span style="color:var(--success)">↑</span>' : diff < 0 ? '<span style="color:var(--danger)">↓</span>' : '<span style="color:var(--text-faint)">→</span>';
+			        let prog = progressoMes(i);
+			
+			        html += `<tr class="heat-${heat}">
+			            <td>${m}</td>
+			            <td>${antigo[i].toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</td>
+			            <td>
+			                ${atual[i].toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+			                <div class="metaBar"><div style="width:${prog}%"></div></div>
+			            </td>
+			            <td style="color:${diff>=0?'#3ddc97':'#ff6b6b'}">
+			                ${diff.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+			            </td>
+			            <td>${perc.toFixed(1)}%</td>
+			            <td>${seta}</td>
+			        </tr>`;
+			    });
+			
+			    html += "</table>";
+			    document.getElementById("comparativoMensal").innerHTML = html;
+			
+			    atualizarGrafico(ano, ant, atual, antigo);
+			}
+			
+			function atualizarGrafico(ano, ant, atual, antigo){
+			    const ctx = document.getElementById("graficoAnual");
+			    if(!ctx || typeof Chart === "undefined") return;
+			
+			    const dataset = {
+			        labels: meses,
+			        datasets: [
+			            {
+			                label: String(ant),
+			                data: antigo,
+			                backgroundColor: "rgba(133,146,166,.35)",
+			                borderRadius: 4,
+			                maxBarThickness: 22
+			            },
+			            {
+			                label: String(ano),
+			                data: atual,
+			                backgroundColor: "#5b9dff",
+			                borderRadius: 4,
+			                maxBarThickness: 22
+			            }
+			        ]
+			    };
+			
+			    const options = {
+			        responsive: true,
+			        plugins: {
+			            legend: { labels: { color: "#8592a6", font: { family: "IBM Plex Mono", size: 11 } } },
+			            tooltip: {
+			                callbacks: {
+			                    label: c => ` ${c.dataset.label}: ${c.parsed.y.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}`
+			                }
+			            }
+			        },
+			        scales: {
+			            x: {
+			                ticks: { color: "#8592a6", font: { family: "IBM Plex Mono", size: 11 } },
+			                grid: { color: "rgba(255,255,255,.04)" }
+			            },
+			            y: {
+			                ticks: {
+			                    color: "#8592a6",
+			                    font: { family: "IBM Plex Mono", size: 11 },
+			                    callback: v => "R$ " + v.toLocaleString("pt-BR")
+			                },
+			                grid: { color: "rgba(255,255,255,.04)" }
+			            }
+			        }
+			    };
+			
+			    if(grafico){
+			        grafico.data = dataset;
+			        grafico.options = options;
+			        grafico.update();
+			    }else{
+			        grafico = new Chart(ctx, { type: "bar", data: dataset, options });
+			    }
+			}
+			
+			function totais(){
+			  return meses.map((_,i)=>
+			    abas.reduce((s,a)=>s+(dadosFirebase?.[a]?.[i]||0),0)
+			  );
+			}
+			
+			function totalAno(){
+			  return totais().reduce((x,y)=>x+y,0);
+			}
+			
+			function totalPorAba(aba){
+			  return (dadosFirebase?.[aba] || []).reduce((s,v)=>s+v,0);
+			}
+			function anoSel(){return Number(document.getElementById("ano").value);}
+			
+			function toast(){
+			const t=document.getElementById("toast");
+			t.classList.add("show");
+			setTimeout(()=>t.classList.remove("show"),1200);
+			}
+			
+			function restaurarCampo(){
+			    if (trocandoAno) return; 
+			
+			    const id = localStorage.getItem("ultimoCampo");
+			    if(id){
+			        const el = document.querySelector(`[data-id='${id}']`);
+			        if(el) el.focus();
+			    }
+			}
+			
+			function trocarAba(i){
+			document.querySelectorAll(".tab").forEach((t,x)=>t.classList.toggle("active",x===i));
+			document.querySelectorAll(".content").forEach((c,x)=>c.classList.toggle("active",x===i));
+			localStorage.setItem("abaAtiva",i);
+			}
+			
+			// restaura ABA depois
+			const abaSalva = localStorage.getItem("abaAtiva");
+			if (abaSalva !== null) {
+			    trocarAba(Number(abaSalva));
+			}
+			
+			function atualizarStatusBackup(){
+			  const info = localStorage.getItem("ultimoBackup");
+			  const el = document.getElementById("statusBackup");
+			
+			  if(info && info !== "null"){
+			    el.innerHTML = `<span class="dot dot-ok"></span> Último backup: <strong>${info}</strong>`;
+			  }else{
+			    el.innerHTML = `<span class="dot dot-warn"></span> Nenhum backup foi realizado ainda`;
+			  }
+			}
+			async function exportarBackup(){
+			  const pacote = {};
+			  const anos = Array.from({length:5},(_,i)=>2025+i); // gera 2025,2026,2027,2028,2029
+			
+			  for(const ano of anos){
+			    const snap = await getDoc(doc(db,"ganhos",String(ano)));
+			    pacote[ano] = snap.exists() ? snap.data() : {};
+			  }
+			
+			  const blob = new Blob(
+			    [JSON.stringify({
+			      data: new Date().toLocaleString("pt-BR"),
+			      ganhos: pacote
+			    },null,2)],
+			    {type:"application/json"}
+			  );
+			  const agora = new Date().toLocaleString("pt-BR");
+			  localStorage.setItem("ultimoBackup", agora);
+			  atualizarStatusBackup();
+			  const a = document.createElement("a");
+			  a.href = URL.createObjectURL(blob);
+			  a.download = `backup-completo.json`;
+			  a.click();
+			}
+			async function importarBackup(e){
+			  const file = e.target.files[0];
+			  if(!file) return;
+			
+			  const reader = new FileReader();
+			  reader.onload = async () => {
+			    const pacote = JSON.parse(reader.result);
+			
+			    for(const ano in pacote.ganhos){
+			      await setDoc(
+			        doc(db,"ganhos",ano),
+			        pacote.ganhos[ano]
+			      );
+			    }
+			
+				await carregarDados();
+				
+				const agora = new Date().toLocaleString("pt-BR");
+				localStorage.setItem("ultimoBackup", agora);
+				atualizarStatusBackup();
+				
+				alert("Backup restaurado com sucesso!");
+			  };
+			
+			  reader.readAsText(file);
+			}
+			let rapidoValorBase = 0;
+
+			function popularSelectRapido(){
+			    const selMes = document.getElementById("rapidoMes");
+			    selMes.innerHTML = meses.map((m,i)=>`<option value="${i}">${m}</option>`).join("");
+			}
+
+			function abrirLancamentoRapido(){
+			    const abaSalva = localStorage.getItem("abaAtiva");
+			    const fonteAtual = abas[abaSalva !== null ? Number(abaSalva) : 0];
+
+			    document.getElementById("rapidoFonte").value = fonteAtual;
+			    document.getElementById("rapidoMes").value = new Date().getMonth();
+			    document.getElementById("rapidoValor").value = "";
+			    document.getElementById("rapidoObs").value = "";
+			    atualizarValorRapido();
+
+			    document.getElementById("modalRapido").classList.add("show");
+			    setTimeout(()=>document.getElementById("rapidoValor").focus(),50);
+			}
+
+			function fecharLancamentoRapido(salvou){
+			    document.getElementById("modalRapido").classList.remove("show");
+
+			    if(!salvou){
+			        // sem salvar: desfaz a pré-visualização e volta ao valor real
+			        const fonte = document.getElementById("rapidoFonte").value;
+			        const mes = Number(document.getElementById("rapidoMes").value);
+			        if(dadosFirebase?.[fonte]) dadosFirebase[fonte][mes] = rapidoValorBase;
+			        previewTotais(dadosFirebase);
+			    }
+			}
+
+			function fecharLancamentoRapidoClick(e){
+			    if(e.target.id === "modalRapido") fecharLancamentoRapido();
+			}
+
+			function atualizarValorRapido(){
+			    const fonte = document.getElementById("rapidoFonte").value;
+			    const mes = Number(document.getElementById("rapidoMes").value);
+			    rapidoValorBase = dadosFirebase?.[fonte]?.[mes] || 0;
+
+			    document.getElementById("rapidoAtualLabel").innerText =
+			        "atual: " + rapidoValorBase.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+			    document.getElementById("rapidoValor").value = "";
+			    previewLancamentoRapido();
+			}
+
+			function previewLancamentoRapido(){
+			    const fonte = document.getElementById("rapidoFonte").value;
+			    const mes = Number(document.getElementById("rapidoMes").value);
+			    const digitado = Number(document.getElementById("rapidoValor").value.replace(/[^\d]/g,"")) / 100 || 0;
+
+			    const preview = { ...dadosFirebase };
+			    preview[fonte] = [...(dadosFirebase?.[fonte] || Array(12).fill(0))];
+			    preview[fonte][mes] = rapidoValorBase + digitado;
+
+			    previewTotais(preview);
+			}
+
+			async function salvarLancamentoRapido(){
+			    const fonte = document.getElementById("rapidoFonte").value;
+			    const mes = Number(document.getElementById("rapidoMes").value);
+			    const digitado = Number(document.getElementById("rapidoValor").value.replace(/[^\d]/g,"")) / 100 || 0;
+			    const obs = document.getElementById("rapidoObs").value.trim();
+			    const novoValor = rapidoValorBase + digitado;
+
+			    const inputTabela = document.querySelector(`[data-id='${fonte}_${mes}']`);
+			    if(inputTabela){
+			        inputTabela.value = novoValor.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+			        await salvarDados(inputTabela);
+			    }
+
+			    if(digitado > 0){
+			        const ano = anoSel();
+			        lancamentos.push({
+			            fonte, mes, valor: digitado, obs,
+			            data: new Date().toISOString()
+			        });
+			        try{
+			            await setDoc(doc(db,"lancamentos",String(ano)), { itens: lancamentos });
+			            renderLancamentos();
+			        }catch(e){
+			            console.error("Erro ao salvar o lançamento detalhado (verifique as regras do Firestore para a coleção 'lancamentos'):", e);
+			            alert("O valor foi somado, mas não consegui salvar o detalhe do lançamento (fonte/observação). Verifique as regras do Firestore para a coleção 'lancamentos'.");
+			        }
+			    }
+
+			    fecharLancamentoRapido(true);
+
+			    const abaIndex = abas.indexOf(fonte);
+			    if(abaIndex !== -1) trocarAba(abaIndex);
+			}
+
+			window.addEventListener("load", async () => {
+			
+			    popularSelectRapido();
+
+			    const selectAno = document.getElementById("ano");
+			    const anos = Array.from({length:5}, (_, i) => 2025 + i); // gera 2025,2026,2027,2028,2029
+			    anos.forEach(ano => {
+			        const option = document.createElement("option");
+			        option.value = ano;
+			        option.textContent = ano;
+			        selectAno.appendChild(option);
+			    });
+			
+			    // restaura o ano salvo, se houver
+			    const anoSalvo = localStorage.getItem("anoSelecionado");
+			    if (anoSalvo) selectAno.value = anoSalvo;
+			
+			    const abaSalva = localStorage.getItem("abaAtiva");
+			    if (abaSalva !== null) {
+			        trocarAba(Number(abaSalva));
+			    }
+			
+			    await carregarDados();   // ⬅ espera Firebase terminar
+			    atualizarStatusBackup(); 
+			});
+			
+		</script>
+		<div class="assinatura">
+			<strong>by hiro v2.0</strong>
+			<span>financial dashboard</span>
+		</div>
+	</body>
+</html>
