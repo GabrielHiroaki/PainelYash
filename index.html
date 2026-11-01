@@ -12,131 +12,251 @@
   :root{
     --bg:#0b0f14;
     --side:#0e1319;
-    --panel:#151b23;
+    --panel:#161d26;
+    --panel-2:#1c242f;
     --line:rgba(255,255,255,.08);
+    --line-2:rgba(255,255,255,.14);
     --text:#e8ecf1;
     --dim:#8a97a6;
-    --faint:#56626f;
+    --faint:#5a6674;
     --accent:#5b9dff;
     --danger:#ff6b6b;
-    --side-w:232px;
+    --side-w:244px;
+    --side-w-min:72px;
+    color-scheme:dark;
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
   body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit}
+  svg{width:20px;height:20px;flex-shrink:0}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* ---------- login ---------- */
+  /* ================= LOGIN ================= */
   #login{
-    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
-    background:var(--bg);padding:20px;
+    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:
+      radial-gradient(700px 400px at 20% 0%, rgba(91,157,255,.10), transparent 60%),
+      radial-gradient(600px 400px at 100% 100%, rgba(61,220,151,.07), transparent 60%),
+      var(--bg);
   }
   #login[hidden]{display:none}
-  .login-box{width:100%;max-width:340px}
-  .login-box h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0 0 6px}
-  .login-box p{color:var(--dim);font-size:14px;margin:0 0 24px}
+  .login-box{
+    width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:32px 28px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8);
+  }
+  .logo{
+    width:42px;height:42px;border-radius:12px;background:var(--accent);color:#04101f;
+    display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:22px;
+  }
+  .login-box h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:18px 0 4px}
+  .login-box p{color:var(--dim);font-size:14px;margin:0 0 22px}
+  .login-box label{display:block;font-size:12.5px;color:var(--dim);margin:0 0 6px}
   .login-box input{
-    width:100%;padding:12px 14px;margin-bottom:10px;border-radius:8px;
-    background:var(--panel);border:1px solid var(--line);color:var(--text);font:inherit;font-size:15px;
+    width:100%;padding:12px 14px;margin-bottom:14px;border-radius:10px;
+    background:var(--bg);border:1px solid var(--line);color:var(--text);font:inherit;font-size:15px;
   }
-  .login-box input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
-  .login-box button{
-    width:100%;padding:12px;border:0;border-radius:8px;background:var(--accent);color:#04101f;
-    font:inherit;font-weight:700;cursor:pointer;margin-top:4px;
+  .login-box input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,157,255,.18)}
+  .btn-main{
+    width:100%;padding:12px;border:0;border-radius:10px;background:var(--accent);color:#04101f;
+    font-weight:700;cursor:pointer;margin-top:4px;transition:filter .15s;
   }
-  .login-box button:disabled{opacity:.6;cursor:wait}
+  .btn-main:hover{filter:brightness(1.08)}
+  .btn-main:disabled{opacity:.6;cursor:wait}
   #loginErro{color:var(--danger);font-size:13px;min-height:18px;margin-top:12px}
 
-  /* ---------- casca ---------- */
+  /* ================= CASCA ================= */
   #app{display:none;height:100%}
   #app.on{display:flex}
 
   .side{
     width:var(--side-w);flex-shrink:0;background:var(--side);border-right:1px solid var(--line);
-    display:flex;flex-direction:column;padding:22px 14px;
+    display:flex;flex-direction:column;padding:16px 12px;transition:width .2s ease;
   }
-  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:21px;padding:0 10px 22px}
-  .menu{display:flex;flex-direction:column;gap:3px;flex:1}
-  .menu button{
-    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
-    padding:11px 12px;border-radius:8px;border:0;background:transparent;color:var(--dim);
-    font:inherit;font-size:14.5px;cursor:pointer;transition:background .15s,color .15s;
+  .side-top{display:flex;align-items:center;gap:10px;padding:2px 6px 18px}
+  .side-top .logo{width:34px;height:34px;border-radius:10px;font-size:18px}
+  .brand-name{font-family:'Fraunces',serif;font-weight:600;font-size:19px;flex:1;white-space:nowrap}
+  .btn-ico{
+    width:34px;height:34px;border-radius:8px;border:0;background:transparent;color:var(--faint);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s;flex-shrink:0;
   }
-  .menu button:hover{background:var(--panel);color:var(--text)}
-  .menu button[aria-current="page"]{background:var(--panel);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
-  .menu .ico{font-size:17px;width:22px;text-align:center}
-  .menu button:focus-visible,.foot button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .btn-ico:hover{background:var(--panel);color:var(--text)}
+  #btnRecolher svg{transition:transform .2s}
 
-  .foot{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
-  .foot .who{font-size:12px;color:var(--faint);padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .foot button{
-    padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;
-    color:var(--dim);font:inherit;font-size:13px;cursor:pointer;
+  .menu{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto;min-height:0}
+  .item{
+    position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    padding:11px 12px;border-radius:10px;border:0;background:transparent;color:var(--dim);
+    font-size:14.5px;font-weight:500;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;
   }
-  .foot button:hover{color:var(--danger);border-color:rgba(255,107,107,.4)}
+  .item .ico{display:flex;color:var(--faint);transition:color .15s}
+  .item:hover{background:var(--panel);color:var(--text)}
+  .item:hover .ico{color:var(--cor)}
+  .item[aria-current="page"]{
+    background:color-mix(in srgb, var(--cor) 13%, transparent);color:var(--text);
+  }
+  .item[aria-current="page"] .ico{color:var(--cor)}
+  .item[aria-current="page"]::before{
+    content:"";position:absolute;left:-12px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--cor);
+  }
 
-  .stage{flex:1;position:relative;min-width:0}
-  .stage iframe{
-    position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg);display:none;
+  .foot{border-top:1px solid var(--line);padding-top:12px;margin-top:10px;display:flex;flex-direction:column;gap:4px}
+  .foot-btn{
+    display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:10px;border:0;
+    background:transparent;color:var(--dim);font-size:13.5px;cursor:pointer;text-align:left;white-space:nowrap;
+    transition:background .15s,color .15s;
   }
+  .foot-btn:hover{background:var(--panel);color:var(--text)}
+  .foot-btn.sair:hover{color:var(--danger);background:rgba(255,107,107,.1)}
+  .user{display:flex;align-items:center;gap:10px;padding:10px 8px 4px;min-width:0}
+  .avatar{
+    width:30px;height:30px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line-2);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text);flex-shrink:0;
+    text-transform:uppercase;
+  }
+  .user-mail{font-size:12px;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* recolhido: só ícones */
+  .side.min{width:var(--side-w-min)}
+  .side.min .brand-name,.side.min .item span:not(.ico),.side.min .foot-btn span:not(.ico),.side.min .user-mail{display:none}
+  .side.min .side-top{flex-direction:column;gap:10px;padding-bottom:14px}
+  .side.min .item,.side.min .foot-btn{justify-content:center;padding-left:0;padding-right:0}
+  .side.min .user{justify-content:center}
+  .side.min #btnRecolher svg{transform:rotate(180deg)}
+
+  .stage{flex:1;position:relative;min-width:0;background:var(--bg)}
+  .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg);display:none}
   .stage iframe.on{display:block}
   .carregando{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    color:var(--faint);font-size:14px;pointer-events:none;
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    color:var(--faint);font-size:13px;pointer-events:none;
   }
   .carregando[hidden]{display:none}
+  .spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line-2);border-top-color:var(--accent);animation:gira .8s linear infinite}
+  @keyframes gira{to{transform:rotate(360deg)}}
 
-  /* ---------- celular: menu vira barra inferior ---------- */
+  /* ================= ORGANIZAR (dialog) ================= */
+  dialog{
+    width:min(420px,calc(100% - 28px));padding:0;border:1px solid var(--line-2);border-radius:16px;
+    background:var(--panel);color:var(--text);box-shadow:0 40px 100px -30px rgba(0,0,0,.9);
+  }
+  dialog::backdrop{background:rgba(4,7,11,.7);backdrop-filter:blur(3px)}
+  .dlg-head{padding:22px 22px 6px}
+  .dlg-head h2{font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin:0 0 4px}
+  .dlg-head p{margin:0;color:var(--dim);font-size:13.5px}
+  .ordem-lista{list-style:none;margin:14px 14px 6px;padding:0;display:flex;flex-direction:column;gap:6px}
+  .ordem-lista li{
+    display:flex;align-items:center;gap:10px;padding:8px 8px 8px 10px;border-radius:10px;
+    background:var(--bg);border:1px solid var(--line);cursor:grab;
+  }
+  .ordem-lista li.arrastando{opacity:.4}
+  .grip{color:var(--faint);display:flex}
+  .ordem-lista .ico{display:flex;color:var(--cor)}
+  .ordem-lista .nome{flex:1;font-size:14.5px;font-weight:500}
+  .setas{display:flex;gap:4px}
+  .setas button{
+    width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--dim);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .setas button:hover:not(:disabled){color:var(--text);border-color:var(--line-2)}
+  .setas button:disabled{opacity:.25;cursor:not-allowed}
+  .setas svg{width:16px;height:16px}
+  .dlg-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 22px 20px}
+  .btn-link{background:none;border:0;color:var(--dim);font-size:13px;cursor:pointer;padding:8px 4px}
+  .btn-link:hover{color:var(--text)}
+  .btn-ok{padding:10px 22px;border:0;border-radius:10px;background:var(--accent);color:#04101f;font-weight:700;cursor:pointer}
+
+  /* ================= CELULAR ================= */
   @media(max-width:760px){
     #app.on{flex-direction:column-reverse}
-    .side{
-      width:100%;flex-direction:row;align-items:stretch;padding:6px 6px calc(6px + env(safe-area-inset-bottom));
-      border-right:0;border-top:1px solid var(--line);
+    .side,.side.min{
+      width:100%;flex-direction:row;align-items:stretch;padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+      border-right:0;border-top:1px solid var(--line);gap:4px;
     }
-    .brand,.foot .who{display:none}
-    .menu{flex-direction:row;gap:2px}
-    .menu button{flex:1;flex-direction:column;gap:3px;padding:8px 2px;font-size:11px;text-align:center;justify-content:center}
-    .menu button[aria-current="page"]{box-shadow:inset 0 3px 0 var(--accent)}
-    .foot{border-top:0;padding:0 0 0 6px;justify-content:center}
-    .foot button{padding:8px 10px;font-size:12px}
+    .side-top,.user{display:none}
+    .menu{flex-direction:row;gap:2px;overflow:visible}
+    .item,.side.min .item{
+      flex:1;flex-direction:column;gap:4px;padding:8px 2px;font-size:11px;text-align:center;justify-content:center;min-width:0;
+    }
+    .item span:not(.ico),.side.min .item span:not(.ico){display:block;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .item[aria-current="page"]::before{left:22%;right:22%;top:0;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+    .foot{border-top:0;border-left:1px solid var(--line);padding:0 0 0 6px;margin:0;flex-direction:row;gap:2px}
+    .foot-btn,.side.min .foot-btn{width:42px;padding:0;justify-content:center}
+    .foot-btn span:not(.ico),.side.min .foot-btn span:not(.ico){display:none}
   }
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.01ms!important}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN ÚNICO -->
+<!-- ============ LOGIN ÚNICO ============ -->
 <div id="login">
   <form class="login-box" id="formLogin">
+    <div class="logo">P</div>
     <h1>Painel Financeiro</h1>
     <p>Entre uma vez e acesse tudo.</p>
-    <input type="email" id="email" placeholder="Email" autocomplete="username" required>
-    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" required>
-    <button type="submit" id="btnEntrar">Entrar</button>
+    <label for="email">Email</label>
+    <input type="email" id="email" autocomplete="username" required>
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" autocomplete="current-password" required>
+    <button type="submit" class="btn-main" id="btnEntrar">Entrar</button>
     <div id="loginErro" role="alert"></div>
   </form>
 </div>
 
-<!-- CASCA -->
+<!-- ============ CASCA ============ -->
 <div id="app">
-  <aside class="side">
-    <div class="brand">Painel</div>
-    <nav class="menu" id="menu"></nav>
+  <aside class="side" id="side">
+    <div class="side-top">
+      <div class="logo">P</div>
+      <div class="brand-name">Painel</div>
+      <button class="btn-ico" id="btnRecolher" title="Recolher menu" aria-label="Recolher menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+
+    <nav class="menu" id="menu" aria-label="Módulos"></nav>
+
     <div class="foot">
-      <div class="who" id="quem"></div>
-      <button id="btnSair">Sair</button>
+      <button class="foot-btn" id="btnOrganizar" title="Organizar itens">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg></span>
+        <span>Organizar itens</span>
+      </button>
+      <button class="foot-btn sair" id="btnSair" title="Sair">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M16 8l4 4-4 4M20 12H9"/></svg></span>
+        <span>Sair</span>
+      </button>
+      <div class="user">
+        <div class="avatar" id="avatar"></div>
+        <div class="user-mail" id="quem"></div>
+      </div>
     </div>
   </aside>
+
   <main class="stage" id="stage">
-    <div class="carregando" id="carregando" hidden>Carregando…</div>
+    <div class="carregando" id="carregando" hidden><div class="spin"></div><span>Carregando…</span></div>
   </main>
 </div>
+
+<!-- ============ ORGANIZAR ITENS ============ -->
+<dialog id="dlgOrdem" aria-labelledby="dlgTitulo">
+  <div class="dlg-head">
+    <h2 id="dlgTitulo">Organizar itens</h2>
+    <p>Arraste ou use as setas. A ordem fica salva neste aparelho.</p>
+  </div>
+  <ul class="ordem-lista" id="listaOrdem"></ul>
+  <div class="dlg-foot">
+    <button class="btn-link" id="btnRestaurar">Restaurar ordem original</button>
+    <button class="btn-ok" id="btnFechar">Pronto</button>
+  </div>
+</dialog>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* O login único usa o projeto do app de Ganhos (o único que já tem Auth).
+/* Login único: usa o projeto do app de Ganhos (o único que já tem Auth).
    Precisa ser o MESMO firebaseConfig do ganhos.html para a sessão ser compartilhada. */
 const firebaseConfig = {
   apiKey: "AIzaSyDQcM-q2jwZMshHnuf-jRfaxeYSmsjNCUs",
@@ -148,52 +268,163 @@ const firebaseConfig = {
 };
 const auth = getAuth(initializeApp(firebaseConfig));
 
-/* Módulos: cada um é um arquivo HTML original, na mesma pasta desta página. */
+/* ---------- módulos (ordem original) ---------- */
+const svg = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+
 const MODULOS = [
-  { id:"ganhos",   nome:"Ganhos",   ico:"💰", arquivo:"ganhos.html"   },
-  { id:"carro",    nome:"Carro",    ico:"⛽", arquivo:"carro.html"    },
-  { id:"cofrinho", nome:"Cofrinho", ico:"🐷", arquivo:"cofrinho.html" },
-  { id:"carteira", nome:"Carteira", ico:"👛", arquivo:"carteira.html" },
-  { id:"compras",  nome:"Compras",  ico:"🛒", arquivo:"compras.html"  }
+  { id:"ganhos",   nome:"Ganhos",   arquivo:"ganhos.html",   cor:"#3ddc97",
+    icone: svg('<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>') },
+  { id:"carro",    nome:"Carro",    arquivo:"carro.html",    cor:"#f5a623",
+    icone: svg('<path d="M3 13l2-5a2 2 0 0 1 1.9-1.3h10.2A2 2 0 0 1 19 8l2 5v5h-3v-2H6v2H3z"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/>') },
+  { id:"cofrinho", nome:"Cofrinho", arquivo:"cofrinho.html", cor:"#5b9dff",
+    icone: svg('<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/>') },
+  { id:"carteira", nome:"Carteira", arquivo:"carteira.html", cor:"#b58cff",
+    icone: svg('<path d="M4 7a2 2 0 0 1 2-2h11v3"/><rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="16.5" cy="14" r="1.1"/>') },
+  { id:"compras",  nome:"Compras",  arquivo:"compras.html",  cor:"#4cc2f0",
+    icone: svg('<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.4 11h10.2l2-8H6.2"/>') }
 ];
 
 const $ = (id) => document.getElementById(id);
 const frames = {};
+let atual = null;
 
-/* menu */
-$("menu").innerHTML = MODULOS.map(m =>
-  `<button data-id="${m.id}"><span class="ico">${m.ico}</span><span>${m.nome}</span></button>`
-).join("");
+/* ---------- ordem do menu (salva no aparelho) ---------- */
+const K_ORDEM = "painel.ordem", K_MIN = "painel.recolhido", K_ULTIMO = "painel.ultimo";
+const idsOriginais = MODULOS.map(m => m.id);
+
+function lerOrdem(){
+  try{
+    const salva = JSON.parse(localStorage.getItem(K_ORDEM) || "[]");
+    const validos = salva.filter(i => idsOriginais.includes(i));
+    return [...validos, ...idsOriginais.filter(i => !validos.includes(i))]; // módulo novo entra no fim
+  }catch{ return [...idsOriginais]; }
+}
+function salvarOrdem(){ try{ localStorage.setItem(K_ORDEM, JSON.stringify(ordem)); }catch{} }
+
+let ordem = lerOrdem();
+const porId = (id) => MODULOS.find(m => m.id === id);
+
+/* ---------- menu ---------- */
+function renderMenu(){
+  $("menu").innerHTML = ordem.map(id => {
+    const m = porId(id);
+    return `<button class="item" data-id="${m.id}" style="--cor:${m.cor}" title="${m.nome}"
+              ${m.id === atual ? 'aria-current="page"' : ''}>
+              <span class="ico">${m.icone}</span><span>${m.nome}</span></button>`;
+  }).join("");
+}
 $("menu").addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-id]");
+  const b = e.target.closest(".item");
   if (b) location.hash = b.dataset.id;
 });
 
+/* ---------- abrir módulo ---------- */
 function abrir(id){
-  const mod = MODULOS.find(m => m.id === id) || MODULOS[0];
+  const mod = porId(id) || porId(localStorage.getItem(K_ULTIMO)) || porId(ordem[0]);
+  atual = mod.id;
+  try{ localStorage.setItem(K_ULTIMO, atual); }catch{}
 
-  document.querySelectorAll("#menu button").forEach(b => {
-    if (b.dataset.id === mod.id) b.setAttribute("aria-current","page");
+  document.querySelectorAll("#menu .item").forEach(b => {
+    if (b.dataset.id === atual) b.setAttribute("aria-current","page");
     else b.removeAttribute("aria-current");
   });
 
-  // o iframe só é criado na primeira visita e depois fica vivo (não perde o que você estava fazendo)
-  if (!frames[mod.id]){
+  // o iframe só nasce na primeira visita e depois fica vivo (não perde o que você estava fazendo)
+  if (!frames[atual]){
     const f = document.createElement("iframe");
     f.title = mod.nome;
     f.src = mod.arquivo;
-    $("carregando").hidden = false;
-    f.addEventListener("load", () => { $("carregando").hidden = true; });
+    f.addEventListener("load", () => {
+      f.dataset.ok = "1";
+      if (atual === mod.id) $("carregando").hidden = true;
+    });
     $("stage").appendChild(f);
-    frames[mod.id] = f;
+    frames[atual] = f;
   }
-  Object.entries(frames).forEach(([k,f]) => f.classList.toggle("on", k === mod.id));
+  Object.entries(frames).forEach(([k,f]) => f.classList.toggle("on", k === atual));
+  $("carregando").hidden = frames[atual].dataset.ok === "1";
   document.title = mod.nome + " · Painel Financeiro";
 }
-
 window.addEventListener("hashchange", () => { if (auth.currentUser) abrir(location.hash.slice(1)); });
 
-/* login / logout */
+/* ---------- menu recolhido ---------- */
+function aplicarRecolhido(min){
+  $("side").classList.toggle("min", min);
+  $("btnRecolher").title = min ? "Expandir menu" : "Recolher menu";
+  $("btnRecolher").setAttribute("aria-label", $("btnRecolher").title);
+}
+aplicarRecolhido(localStorage.getItem(K_MIN) === "1");
+$("btnRecolher").addEventListener("click", () => {
+  const min = !$("side").classList.contains("min");
+  aplicarRecolhido(min);
+  try{ localStorage.setItem(K_MIN, min ? "1" : "0"); }catch{}
+});
+
+/* ---------- organizar itens ---------- */
+const dlg = $("dlgOrdem"), lista = $("listaOrdem");
+const GRIP = svg('<circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/>');
+const SOBE = svg('<path d="M6 15l6-6 6 6"/>'), DESCE = svg('<path d="M6 9l6 6 6-6"/>');
+
+function renderLista(){
+  lista.innerHTML = ordem.map((id,i) => {
+    const m = porId(id);
+    return `<li draggable="true" data-id="${m.id}" style="--cor:${m.cor}">
+      <span class="grip">${GRIP}</span>
+      <span class="ico">${m.icone}</span>
+      <span class="nome">${m.nome}</span>
+      <span class="setas">
+        <button type="button" data-dir="-1" aria-label="Mover ${m.nome} para cima" ${i===0?'disabled':''}>${SOBE}</button>
+        <button type="button" data-dir="1" aria-label="Mover ${m.nome} para baixo" ${i===ordem.length-1?'disabled':''}>${DESCE}</button>
+      </span></li>`;
+  }).join("");
+}
+function aplicarOrdem(){ salvarOrdem(); renderMenu(); renderLista(); }
+
+$("btnOrganizar").addEventListener("click", () => { renderLista(); dlg.showModal(); });
+$("btnFechar").addEventListener("click", () => dlg.close());
+dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+$("btnRestaurar").addEventListener("click", () => { ordem = [...idsOriginais]; aplicarOrdem(); });
+
+// setas (funcionam no celular e no teclado)
+lista.addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-dir]");
+  if (!b) return;
+  const id = b.closest("li").dataset.id, dir = Number(b.dataset.dir);
+  const i = ordem.indexOf(id), j = i + dir;
+  if (j < 0 || j >= ordem.length) return;
+  [ordem[i], ordem[j]] = [ordem[j], ordem[i]];
+  aplicarOrdem();
+  const li = lista.querySelector(`li[data-id="${id}"]`);
+  const alvo = li.querySelector(`button[data-dir="${dir}"]`);
+  (alvo.disabled ? li.querySelector(`button[data-dir="${-dir}"]`) : alvo).focus();
+});
+
+// arrastar (computador)
+let arrastando = null;
+lista.addEventListener("dragstart", (e) => {
+  arrastando = e.target.closest("li");
+  if (!arrastando) return;
+  arrastando.classList.add("arrastando");
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", arrastando.dataset.id);
+});
+lista.addEventListener("dragover", (e) => {
+  if (!arrastando) return;
+  e.preventDefault();
+  const alvo = e.target.closest("li");
+  if (!alvo || alvo === arrastando) return;
+  const r = alvo.getBoundingClientRect();
+  lista.insertBefore(arrastando, e.clientY > r.top + r.height/2 ? alvo.nextSibling : alvo);
+});
+lista.addEventListener("dragend", () => {
+  if (!arrastando) return;
+  arrastando.classList.remove("arrastando");
+  arrastando = null;
+  ordem = [...lista.children].map(li => li.dataset.id);
+  aplicarOrdem();
+});
+
+/* ---------- login / logout ---------- */
 $("formLogin").addEventListener("submit", async (e) => {
   e.preventDefault();
   $("loginErro").textContent = "";
@@ -206,7 +437,6 @@ $("formLogin").addEventListener("submit", async (e) => {
   }
   $("btnEntrar").disabled = false;
 });
-
 $("btnSair").addEventListener("click", () => signOut(auth));
 
 onAuthStateChanged(auth, (user) => {
@@ -214,14 +444,19 @@ onAuthStateChanged(auth, (user) => {
     $("login").hidden = true;
     $("app").classList.add("on");
     $("quem").textContent = user.email;
+    $("quem").title = user.email;
+    $("avatar").textContent = (user.email || "?").charAt(0);
+    renderMenu();
     abrir(location.hash.slice(1));
   }else{
+    if (dlg.open) dlg.close();
     $("app").classList.remove("on");
     $("login").hidden = false;
     $("senha").value = "";
-    // descarrega os módulos ao sair, para nada ficar aberto na tela
+    // ao sair, descarrega os módulos para nada ficar aberto na tela
     Object.values(frames).forEach(f => f.remove());
     Object.keys(frames).forEach(k => delete frames[k]);
+    atual = null;
   }
 });
 </script>
