@@ -1,0 +1,3099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cofrinho Inteligente PRO</title>
+<meta name="description" content="Controle de cofrinhos, rendimentos e projeções financeiras.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐷</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --bg-0:#05070d;
+    --bg-1:#0a0f1a;
+    --bg-2:#0e1526;
+
+    --surface:#131a29;
+    --surface-soft:#1a2233;
+    --border:rgba(255,255,255,0.08);
+    --border-soft:rgba(255,255,255,0.05);
+
+    --mint:#00e0a0;
+    --mint-deep:#00b884;
+    --blue:#3f9dff;
+    --blue-deep:#0074e4;
+    --red:#ff6b7a;
+    --gold:#ffc65c;
+
+    --text-0:#f4f7fc;
+    --text-1:#a3aec4;
+    --text-2:#707d96;
+
+    --radius-lg:24px;
+    --radius-md:16px;
+    --radius-sm:12px;
+
+    --shadow-card:0 10px 28px rgba(0,0,0,0.35);
+    --shadow-card-hover:0 16px 34px rgba(0,0,0,0.45);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Inter",Arial,sans-serif;
+}
+
+::selection{
+    background:var(--blue);
+    color:#fff;
+}
+
+body{
+    background:
+        radial-gradient(circle at 15% -10%, rgba(63,157,255,0.12), transparent 45%),
+        radial-gradient(circle at 100% 5%, rgba(0,224,160,0.10), transparent 40%),
+        linear-gradient(180deg,var(--bg-0),var(--bg-1) 45%,var(--bg-2));
+    color:var(--text-0);
+    padding:28px 20px 60px;
+    -webkit-font-smoothing:antialiased;
+}
+
+.container{
+    max-width:1180px;
+    margin:auto;
+}
+
+/* ===== Header ===== */
+
+.brand{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.brand-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 14px;
+    border-radius:999px;
+    background:rgba(63,157,255,0.12);
+    border:1px solid rgba(63,157,255,0.25);
+    font-size:12px;
+    letter-spacing:.06em;
+    color:#8ec3ff;
+    text-transform:uppercase;
+    font-weight:600;
+}
+
+.brand-badge .dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--mint);
+    box-shadow:0 0 0 3px rgba(0,224,160,0.22);
+    animation:pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:.4;}
+}
+
+h1{
+    text-align:center;
+    margin-bottom:26px;
+    font-family:"Poppins",sans-serif;
+    font-weight:700;
+    font-size:28px;
+    letter-spacing:-0.01em;
+    color:var(--text-0);
+}
+
+h2{
+    font-family:"Poppins",sans-serif;
+    font-weight:600;
+    font-size:18px;
+    letter-spacing:-0.01em;
+    color:var(--text-0);
+}
+
+h3{
+    font-family:"Inter",sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:.02em;
+    color:var(--text-1);
+}
+
+/* ===== Cards ===== */
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:var(--shadow-card);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+}
+
+label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-2);
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    margin-bottom:6px;
+}
+
+input,select{
+    width:100%;
+    padding:12px 14px;
+    border:1.5px solid var(--border);
+    border-radius:var(--radius-sm);
+    font-size:15px;
+    background:var(--surface-soft);
+    color:var(--text-0);
+    transition:.15s ease;
+    font-family:"Inter",sans-serif;
+}
+
+input::placeholder{
+    color:var(--text-2);
+}
+
+input:focus,select:focus{
+    outline:none;
+    border-color:var(--blue);
+    background:#1e2740;
+    box-shadow:0 0 0 4px rgba(63,157,255,0.16);
+}
+
+button{
+    border:none;
+    border-radius:999px;
+    font-size:14px;
+    font-family:"Inter",sans-serif;
+}
+
+button{
+    background:var(--surface-soft);
+    color:var(--text-0);
+    padding:11px 20px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.18s ease;
+    border:1.5px solid var(--border);
+    width:auto;
+}
+
+button:hover{
+    background:#232c42;
+    transform:translateY(-1px);
+}
+
+button:active{
+    transform:translateY(0);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible{
+    outline:2px solid var(--blue);
+    outline-offset:2px;
+}
+
+button:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));
+    color:#fff;
+    border:none;
+    box-shadow:0 8px 20px rgba(63,157,255,0.32);
+    font-weight:700;
+}
+
+.btn-primary:hover{
+    filter:brightness(1.1);
+    box-shadow:0 10px 26px rgba(63,157,255,0.4);
+}
+
+.btn-block{
+    width:100%;
+    padding:14px;
+    font-size:15px;
+    border-radius:var(--radius-sm);
+}
+
+/* ===== Saldo — cartão estilo bancário ===== */
+
+.saldo-card{
+    position:relative;
+    overflow:hidden;
+    padding:28px 26px;
+    background:linear-gradient(120deg,#00286b 0%,#0074e4 45%,#00c48c 130%);
+    border:none;
+    color:#fff;
+    box-shadow:0 18px 40px rgba(0,60,140,0.4);
+}
+
+.saldo-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:radial-gradient(rgba(255,255,255,0.14) 1.6px, transparent 1.6px);
+    background-size:18px 18px;
+    opacity:.5;
+    pointer-events:none;
+}
+
+.saldo-card::after{
+    content:"";
+    position:absolute;
+    right:-60px;
+    top:-60px;
+    width:240px;
+    height:240px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%);
+    pointer-events:none;
+}
+
+.saldo-card h2{
+    color:rgba(255,255,255,0.92);
+    position:relative;
+}
+
+.saldo-topo{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.btn-olho{
+    position:relative;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.22);
+    color:#fff;
+    width:32px;
+    height:32px;
+    min-width:32px;
+    padding:0;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+}
+
+.btn-olho:hover{
+    background:rgba(255,255,255,0.24);
+    transform:none;
+}
+
+.saldo-eyebrow{
+    position:relative;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.72);
+}
+
+.saldo{
+    position:relative;
+    font-family:"Poppins",sans-serif;
+    font-variant-numeric:tabular-nums;
+    font-size:44px;
+    color:#fff;
+    font-weight:700;
+    margin-top:6px;
+    line-height:1.15;
+    transition:filter .15s ease;
+}
+
+.saldo.oculto{
+    filter:blur(11px);
+    user-select:none;
+}
+
+.info{
+    color:var(--text-1);
+    margin-top:6px;
+    font-size:14px;
+    position:relative;
+}
+
+.saldo-card .info{
+    color:rgba(255,255,255,0.85);
+}
+
+/* ===== Top stat cards ===== */
+
+.cards-top{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:14px;
+}
+
+.top-card{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--border);
+    padding:18px 20px;
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-card);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.top-card:hover{
+    transform:translateY(-3px);
+    box-shadow:var(--shadow-card-hover);
+    border-color:rgba(255,255,255,0.16);
+}
+
+.top-card h3{
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.icone-card{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:30px;
+    height:30px;
+    border-radius:10px;
+    font-size:15px;
+    background:var(--accent-bg,rgba(63,157,255,0.14));
+    flex-shrink:0;
+}
+
+.top-card .valor{
+    font-family:"Poppins",sans-serif;
+    font-variant-numeric:tabular-nums;
+    font-size:23px;
+    font-weight:700;
+    color:var(--text-0);
+}
+
+/* ===== Period pills ===== */
+
+.periodos-grafico{
+    display:flex;
+    gap:8px;
+    margin-top:18px;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+}
+
+.periodos-grafico button{
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:13px;
+    background:var(--surface-soft);
+    border:1.5px solid var(--border);
+    color:var(--text-1);
+}
+
+.periodos-grafico button.ativo{
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));
+    border-color:transparent;
+    color:#fff;
+    font-weight:700;
+}
+
+/* ===== Table ===== */
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:8px;
+    font-size:14px;
+}
+
+th,td{
+    padding:14px 12px;
+    border-bottom:1px solid var(--border-soft);
+    text-align:left;
+    white-space:nowrap;
+}
+
+td:nth-child(2){
+    white-space:normal;
+}
+
+th{
+    background:transparent;
+    color:var(--text-2);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-weight:700;
+    border-bottom:1px solid var(--border);
+}
+
+tbody tr:not([style]):hover{
+    background:rgba(255,255,255,0.03);
+}
+
+.entrada{
+    color:var(--mint);
+    font-weight:700;
+}
+
+.saida{
+    color:var(--red);
+    font-weight:700;
+}
+
+.badge-tipo{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:4px 11px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.badge-tipo.entrada{
+    background:rgba(0,224,160,0.14);
+    color:var(--mint);
+}
+
+.badge-tipo.saida{
+    background:rgba(255,107,122,0.14);
+    color:var(--red);
+}
+
+button.excluir{
+    background:rgba(255,107,122,0.1);
+    color:var(--red);
+    border:1.5px solid rgba(255,107,122,0.25);
+    padding:8px 14px;
+    font-size:13px;
+}
+
+button.excluir:hover{
+    background:rgba(255,107,122,0.2);
+}
+
+.empty-state{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--text-2);
+    font-size:14px;
+}
+
+.empty-state .emoji{
+    font-size:30px;
+    display:block;
+    margin-bottom:10px;
+}
+
+/* ===== Notification ===== */
+
+.notificacao{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:linear-gradient(135deg,var(--mint),var(--mint-deep));
+    color:#04140f;
+    padding:18px 20px;
+    border-radius:16px;
+    font-weight:700;
+    z-index:999;
+    box-shadow:0 14px 30px rgba(0,0,0,0.5);
+    animation:fade 0.4s;
+    max-width:280px;
+}
+
+.notificacao.erro{
+    background:linear-gradient(135deg,#ff8a8a,var(--red));
+    color:#360a0d;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(-16px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===== Loading overlay ===== */
+
+.loading-overlay{
+    position:fixed;
+    inset:0;
+    background:var(--bg-0);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    z-index:1000;
+    transition:opacity .35s ease;
+}
+
+.loading-overlay.escondido{
+    opacity:0;
+    pointer-events:none;
+}
+
+.spinner{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:3px solid var(--border);
+    border-top-color:var(--blue);
+    animation:girar 0.8s linear infinite;
+}
+
+@keyframes girar{
+    to{ transform:rotate(360deg); }
+}
+
+.loading-overlay span{
+    color:var(--text-1);
+    font-size:13px;
+    letter-spacing:.04em;
+}
+
+canvas{
+    margin-top:16px;
+    height:320px !important;
+}
+
+footer.rodape{
+    text-align:center;
+    color:var(--text-2);
+    font-size:12px;
+    margin-top:10px;
+    padding-bottom:10px;
+}
+
+@media(max-width:700px){
+
+    h1{
+        font-size:23px;
+    }
+
+    .saldo{
+        font-size:34px;
+    }
+
+    .card{
+        padding:16px;
+        border-radius:18px;
+    }
+
+    table{
+        font-size:12.5px;
+    }
+
+    th,td{
+        padding:10px 8px;
+    }
+
+}
+
+@media (prefers-reduced-motion:reduce){
+    *{
+        animation-duration:0.001ms !important;
+        transition-duration:0.001ms !important;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <span>Carregando seus cofrinhos…</span>
+</div>
+
+<div class="container">
+
+    <div class="brand">
+        <span class="brand-badge"><span class="dot"></span> Rendimento diário</span>
+    </div>
+
+    <h1>🐷 Cofrinho</h1>
+
+    <div class="card saldo-card">
+
+        <div class="saldo-topo">
+            <h2>Saldo em conta</h2>
+            <button class="btn-olho" id="btnOlho" onclick="alternarSaldo()" title="Ocultar saldo" aria-label="Ocultar saldo">👁️</button>
+        </div>
+
+        <div class="saldo-eyebrow">Patrimônio consolidado</div>
+
+        <div class="saldo" id="saldo">
+            R$ 0,00
+        </div>
+
+        <div class="info" id="rendimentoHoje">
+            Hoje rendeu: R$ 0,00
+        </div>
+
+    </div>
+
+    <div class="cards-top">
+
+        <div class="top-card">
+            <h3><span class="icone-card" style="--accent-bg:rgba(0,224,160,0.14);">💸</span> Total Rendimentos</h3>
+            <div class="valor" id="totalRendimento">
+                R$ 0,00
+            </div>
+        </div>
+		<div class="top-card">
+			<h3><span class="icone-card" style="--accent-bg:rgba(63,157,255,0.14);">📅</span> Estimativa Mensal</h3>
+			<div class="valor" id="estimativaMensal">
+				R$ 0,00
+			</div>
+		</div>
+        <div class="top-card">
+            <h3><span class="icone-card" style="--accent-bg:rgba(63,157,255,0.14);">📈</span> Previsão 30 dias</h3>
+            <div class="valor" id="prev30">
+                R$ 0,00
+            </div>
+        </div>
+
+        <div class="top-card">
+            <h3><span class="icone-card" style="--accent-bg:rgba(255,198,92,0.14);">🚀</span> Previsão 1 ano</h3>
+            <div class="valor" id="prev365">
+                R$ 0,00
+            </div>
+        </div>
+		
+		<div class="top-card">
+			<h3><span class="icone-card" style="--accent-bg:rgba(160,170,195,0.14);">📉</span> Estatísticas do Mês</h3>
+
+			<div style="margin-top:10px;">
+				<strong id="mesAtual">
+					Maio 2026
+				</strong>
+			</div>
+
+			<div class="info" id="depositadoMes">
+				💰 Depositado: R$ 0,00
+			</div>
+
+			<div class="info" id="retiradoMes">
+				💸 Retirado: R$ 0,00
+			</div>
+
+			<div class="info" id="rendimentoMes">
+				📈 Rendimentos: R$ 0,00
+			</div>
+
+			<div
+				id="crescimentoMes"
+				style="
+					margin-top:10px;
+					font-weight:bold;
+					color:var(--mint-deep);
+				"
+			>
+				🚀 Crescimento líquido: R$ 0,00
+			</div>
+		</div>
+    </div>
+
+    <div class="card">
+
+        <h2>➕ Novo Lançamento</h2>
+
+        <div
+            style="
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+                margin:16px 0 22px;
+            "
+        >
+
+            <input
+                type="text"
+                id="novoCofrinho"
+                placeholder="Nome do novo cofrinho"
+                style="max-width:300px;"
+            >
+
+            <button
+                onclick="criarNovoCofrinho()"
+            >
+                ➕ Criar Cofrinho
+            </button>
+
+        </div>
+        <div class="grid">
+
+            <div>
+                <label for="tipo">Tipo</label>
+                <select id="tipo">
+                    <option value="entrada">Depósito</option>
+                    <option value="saida">Retirada</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="valor">Valor</label>
+                <input type="number" id="valor" step="0.01" min="0.01" placeholder="R$ 0,00">
+            </div>
+
+            <div>
+                <label for="cofrinho">Cofrinho</label>
+
+                <select id="cofrinho"></select>
+            </div>
+
+            <div>
+                <label for="descricao">Descrição</label>
+
+                <input
+                    type="text"
+                    id="descricao"
+                    placeholder="Ex: Pix salário"
+                >
+            </div>
+
+            <div>
+                <label for="data">Data</label>
+                <input type="date" id="data">
+            </div>
+
+        </div>
+
+        <br>
+
+        <button
+            class="btn-primary btn-block"
+            id="btnAdicionar"
+            onclick="adicionarLancamento()">
+            Adicionar Lançamento
+        </button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>🔄 Transferir entre Cofrinhos</h2>
+
+        <div class="grid" style="margin-top:16px;">
+
+            <div>
+                <label for="transfOrigem">De</label>
+                <select id="transfOrigem"></select>
+            </div>
+
+            <div>
+                <label for="transfDestino">Para</label>
+                <select id="transfDestino"></select>
+            </div>
+
+            <div>
+                <label for="transfValor">Valor</label>
+                <input type="number" id="transfValor" step="0.01" min="0.01" placeholder="R$ 0,00">
+            </div>
+
+            <div>
+                <label for="transfDescricao">Descrição (opcional)</label>
+                <input type="text" id="transfDescricao" placeholder="Ex: Ajuste entre cofrinhos">
+            </div>
+
+        </div>
+
+        <br>
+
+        <button
+            class="btn-block"
+            id="btnTransferir"
+            onclick="transferirEntreCofrinhos()">
+            🔄 Transferir
+        </button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📊 Crescimento</h2>
+            <div class="periodos-grafico" id="periodosGrafico">
+
+                <button data-dias="7" onclick="alterarPeriodo(7)">
+                    7D
+                </button>
+
+                <button data-dias="30" class="ativo" onclick="alterarPeriodo(30)">
+                    30D
+                </button>
+
+                <button data-dias="90" onclick="alterarPeriodo(90)">
+                    90D
+                </button>
+
+                <button data-dias="365" onclick="alterarPeriodo(365)">
+                    1A
+                </button>
+
+                <button data-dias="99999" onclick="alterarPeriodo(99999)">
+                    TUDO
+                </button>
+
+            </div>
+        <canvas id="grafico"></canvas>
+
+    </div>
+		<div class="card">
+
+			<h2>🏦 Cofrinhos</h2>
+
+			<div
+				id="listaCofrinhos"
+				class="cards-top">
+			</div>
+
+		</div>
+
+    <button class="btn-block" id="btnPdf" onclick="gerarPDFResumo()" style="margin-bottom:20px;">
+        📄 Baixar Resumo Mensal
+    </button>
+
+    <div class="card">
+
+        <h2>📜 Histórico</h2>
+
+        <div class="table-wrap">
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Ação</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="historico"></tbody>
+
+        </table>
+        </div>
+
+    </div>
+
+    <footer class="rodape">Cofrinho Inteligente PRO · dados sincronizados em tempo real</footer>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    updateDoc,
+    doc
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDvLdudBX45kfs2mWq7mvZuwc3PQH5j94U",
+  authDomain: "controle-caixinha-dd792.firebaseapp.com",
+  projectId: "controle-caixinha-dd792",
+  storageBucket: "controle-caixinha-dd792.firebasestorage.app",
+  messagingSenderId: "20655307299",
+  appId: "1:20655307299:web:1cad45179e0fa93b808f96",
+  measurementId: "G-GHFSVGRN3J"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+// Plugin de rótulos (valores) nos gráficos — registrado uma única vez.
+// Fica desligado por padrão e é ligado explicitamente no gráfico que precisa dele.
+if(window.ChartDataLabels){
+    Chart.register(window.ChartDataLabels);
+    Chart.defaults.set("plugins.datalabels",{ display:false });
+}
+
+
+function obterTaxaDoDia(data){
+
+    let soma = 0;
+
+    for(let i = 0; i < data.length; i++){
+        soma += data.charCodeAt(i);
+    }
+
+    // mais próximo do rendimento real
+    const base = 0.00059;
+
+    // oscilação pequena
+    const variacao =
+        (soma % 12) * 0.000005;
+
+    return base + variacao;
+}
+
+// ===== Faixas de rendimento =====
+// Considerando a SOMA de todos os cofrinhos:
+// até R$10.000 rende a taxa "cheia" (a mesma que já vinha sendo
+// usada e que estava batendo com o rendimento real do Mercado Pago)
+// o que passar de R$10.000 rende na proporção real entre as faixas
+// (100% / 120% = ~83,3% da taxa cheia)
+const LIMITE_FAIXA_1 = 10000;
+const RAZAO_FAIXA_2 = 100 / 120;
+
+// a partir de qual data a regra de faixas passa a valer.
+// como o app recalcula o histórico inteiro toda vez, sem essa data
+// de corte os dias JÁ PASSADOS também seriam re-rendidos com a
+// regra nova — mudando valores que já estavam fechados.
+// ajuste essa data se quiser mudar quando a regra começa a valer.
+const DATA_INICIO_FAIXAS = "2026-07-31";
+
+function obterTaxaEfetiva(saldoTotal, taxaBase){
+
+    if(saldoTotal <= 0){
+        return taxaBase;
+    }
+
+    const dentroFaixa1 =
+        Math.min(saldoTotal, LIMITE_FAIXA_1);
+
+    const acimaFaixa1 =
+        Math.max(saldoTotal - LIMITE_FAIXA_1, 0);
+
+    const rendimentoTotal =
+        (dentroFaixa1 * taxaBase) +
+        (acimaFaixa1 * taxaBase * RAZAO_FAIXA_2);
+
+    // taxa média ponderada, aplicada igualmente a cada real
+    // (todo mundo cresce na mesma proporção, sem precisar decidir
+    // "quais reais" pertencem a qual faixa)
+    return rendimentoTotal / saldoTotal;
+}
+
+let grafico;
+
+// guarda o último resultado de calcularSistema() para os botões de período
+// (7D/30D/90D/1A/TUDO) não precisarem refazer todo o cálculo do zero a cada clique
+let ultimoCalculo = null;
+
+let dados = {
+    lancamentos:[],
+    cofrinhos:[]
+};
+function renderSelectCofrinhos(){
+
+    const opcoes = dados.cofrinhos.map(cofre => `
+            <option value="${cofre.firestoreId}">
+                ${cofre.nome}
+            </option>
+        `).join("");
+
+    // preenche o select do lançamento normal + os dois da transferência
+    ["cofrinho","transfOrigem","transfDestino"].forEach(id=>{
+
+        const select = document.getElementById(id);
+        if(!select) return;
+
+        const valorSelecionado = select.value;
+
+        select.innerHTML = opcoes;
+
+        // mantém o cofrinho que já estava selecionado, se ainda existir
+        if(
+            valorSelecionado &&
+            dados.cofrinhos.some(c => c.firestoreId === valorSelecionado)
+        ){
+            select.value = valorSelecionado;
+        }
+
+    });
+
+}
+async function carregarCofrinhos(){
+
+    dados.cofrinhos = [];
+
+    const querySnapshot =
+        await getDocs(collection(db, "cofrinhos"));
+
+    querySnapshot.forEach((docItem)=>{
+
+        dados.cofrinhos.push({
+            firestoreId: docItem.id,
+            ...docItem.data()
+        });
+
+    });
+
+    renderSelectCofrinhos();
+}
+async function criarCofrinho(nome){
+
+    const novoDoc = await addDoc(collection(db, "cofrinhos"),{
+        nome,
+        criadoEm:new Date().toISOString()
+    });
+
+    // atualiza local em vez de baixar a coleção inteira de novo
+    dados.cofrinhos.push({
+        firestoreId: novoDoc.id,
+        nome,
+        criadoEm:new Date().toISOString()
+    });
+
+    renderSelectCofrinhos();
+}
+async function renomearCofrinho(firestoreId){
+
+    const cofre =
+        dados.cofrinhos.find(c => c.firestoreId === firestoreId);
+
+    if(!cofre) return;
+
+    const novoNome = prompt("Novo nome do cofrinho:", cofre.nome);
+
+    // cancelou a caixa de diálogo
+    if(novoNome === null) return;
+
+    const nomeLimpo = novoNome.trim();
+
+    if(!nomeLimpo){
+        alert("Digite um nome");
+        return;
+    }
+
+    const jaExiste =
+        dados.cofrinhos.some(
+            c =>
+            c.firestoreId !== firestoreId &&
+            c.nome.toLowerCase() === nomeLimpo.toLowerCase()
+        );
+
+    if(jaExiste){
+        alert("Já existe um cofrinho com esse nome");
+        return;
+    }
+
+    await updateDoc(
+        doc(db, "cofrinhos", firestoreId),
+        { nome: nomeLimpo }
+    );
+
+    // atualiza local em vez de baixar a coleção inteira de novo
+    cofre.nome = nomeLimpo;
+
+    renderSelectCofrinhos();
+    atualizarTudo();
+}
+window.renomearCofrinho = renomearCofrinho;
+async function criarNovoCofrinho(){
+
+    const input =
+        document.getElementById("novoCofrinho");
+
+    const nome =
+        input.value.trim();
+
+    if(!nome){
+        alert("Digite um nome");
+        return;
+    }
+
+    const jaExiste =
+        dados.cofrinhos.some(
+            x =>
+            x.nome.toLowerCase() ===
+            nome.toLowerCase()
+        );
+
+    if(jaExiste){
+        alert("Esse cofrinho já existe");
+        return;
+    }
+
+    await criarCofrinho(nome);
+
+    input.value = "";
+
+    alert("Cofrinho criado");
+}
+
+window.criarNovoCofrinho =
+    criarNovoCofrinho;
+async function carregarFirestore(){
+
+    dados.lancamentos = [];
+
+    const querySnapshot =
+        await getDocs(collection(db, "lancamentos"));
+
+    querySnapshot.forEach((docItem)=>{
+
+        dados.lancamentos.push({
+            firestoreId: docItem.id,
+            ...docItem.data()
+        });
+
+    });
+
+    atualizarTudo();
+}
+
+function formatar(valor){
+
+    return valor.toLocaleString("pt-BR",{
+        style:"currency",
+        currency:"BRL"
+    });
+
+}
+
+function isDiaUtil(data){
+
+    const dia = data.getDay();
+
+    // sábado/domingo
+    if(dia === 0 || dia === 6){
+        return false;
+    }
+
+	const feriados = [
+		"2026-01-01", // Confraternização Universal
+
+		"2026-02-16", // Carnaval (segunda)
+		"2026-02-17", // Carnaval (terça)
+		"2026-04-03", // Sexta-feira Santa
+		"2026-04-21", // Tiradentes
+
+		"2026-05-01", // Dia do Trabalho
+		"2026-06-04", // Corpus Christi
+
+		"2026-09-07", // Independência
+		"2026-10-11", // Criação do Mato Grosso do Sul (estadual MS)
+		"2026-10-12", // Nossa Senhora Aparecida
+
+		"2026-11-02", // Finados
+		"2026-11-15", // Proclamação da República
+		"2026-12-25"  // Natal
+	];
+
+    const dataStr =
+        data.toISOString().split("T")[0];
+
+    return !feriados.includes(dataStr);
+}
+
+async function adicionarLancamento(){
+
+    const tipo = document.getElementById("tipo").value;
+
+    const valor = parseFloat(document.getElementById("valor").value);
+
+    const descricao =
+        document.getElementById("descricao").value || "-";
+    const cofrinhoId =
+        document.getElementById("cofrinho").value;
+
+    const data =
+        document.getElementById("data").value;
+
+    if(!valor || valor <= 0){
+        alert("Valor inválido");
+        return;
+    }
+
+    if(!data){
+        alert("Escolha uma data");
+        return;
+    }
+
+
+	const calculo = calcularSistema();
+
+    const saldoCofre =
+        calculo.saldoCofres?.[cofrinhoId] || 0;
+
+	if(
+		tipo === "saida" &&
+		valor > saldoCofre
+	){
+		alert("Saldo insuficiente neste cofrinho");
+		return;
+	}
+
+    const novoId = Date.now();
+
+    const novoDoc = await addDoc(collection(db, "lancamentos"),{
+        id: novoId,
+        tipo,
+        valor,
+        descricao,
+        cofrinhoId,
+        data
+    });
+
+    // atualiza local em vez de baixar a coleção inteira de novo
+    dados.lancamentos.push({
+        firestoreId: novoDoc.id,
+        id: novoId,
+        tipo,
+        valor,
+        descricao,
+        cofrinhoId,
+        data
+    });
+
+	document.getElementById("valor").value = "";
+	document.getElementById("descricao").value = "";
+    atualizarTudo();
+}
+async function excluir(firestoreId){
+
+    await deleteDoc(
+        doc(db, "lancamentos", firestoreId)
+    );
+
+    // remove local em vez de baixar a coleção inteira de novo
+    dados.lancamentos =
+        dados.lancamentos.filter(
+            x => x.firestoreId !== firestoreId
+        );
+
+    atualizarTudo();
+}
+async function transferirEntreCofrinhos(){
+
+    const origemId =
+        document.getElementById("transfOrigem").value;
+
+    const destinoId =
+        document.getElementById("transfDestino").value;
+
+    const valor =
+        parseFloat(document.getElementById("transfValor").value);
+
+    const descricaoDigitada =
+        document.getElementById("transfDescricao").value.trim();
+
+    if(!origemId || !destinoId){
+        alert("Escolha os dois cofrinhos");
+        return;
+    }
+
+    if(origemId === destinoId){
+        alert("Escolha cofrinhos diferentes para transferir");
+        return;
+    }
+
+    if(!valor || valor <= 0){
+        alert("Valor inválido");
+        return;
+    }
+
+    // mesma validação de saldo já usada no saque normal
+    const calculo = calcularSistema();
+
+    const saldoOrigem =
+        calculo.saldoCofres?.[origemId] || 0;
+
+    if(valor > saldoOrigem){
+        alert("Saldo insuficiente no cofrinho de origem");
+        return;
+    }
+
+    const hoje =
+        new Date().toISOString().split("T")[0];
+
+    const nomeOrigem = obterNomeCofrinho(origemId);
+    const nomeDestino = obterNomeCofrinho(destinoId);
+
+    const idBase = Date.now();
+
+    const descSaida =
+        descricaoDigitada || `Transferência para ${nomeDestino}`;
+
+    const descEntrada =
+        descricaoDigitada || `Transferência de ${nomeOrigem}`;
+
+    // por baixo dos panos é exatamente uma saída + uma entrada —
+    // a mesma coisa que dá pra fazer manualmente, só que numa ação só.
+    // isso mantém a calcularSistema() 100% intocada.
+    const docSaida = await addDoc(collection(db, "lancamentos"),{
+        id: idBase,
+        tipo:"saida",
+        valor,
+        descricao: descSaida,
+        cofrinhoId: origemId,
+        data: hoje
+    });
+
+    const docEntrada = await addDoc(collection(db, "lancamentos"),{
+        id: idBase + 1,
+        tipo:"entrada",
+        valor,
+        descricao: descEntrada,
+        cofrinhoId: destinoId,
+        data: hoje
+    });
+
+    // atualiza local em vez de baixar a coleção inteira de novo
+    dados.lancamentos.push(
+        {
+            firestoreId: docSaida.id,
+            id: idBase,
+            tipo:"saida",
+            valor,
+            descricao: descSaida,
+            cofrinhoId: origemId,
+            data: hoje
+        },
+        {
+            firestoreId: docEntrada.id,
+            id: idBase + 1,
+            tipo:"entrada",
+            valor,
+            descricao: descEntrada,
+            cofrinhoId: destinoId,
+            data: hoje
+        }
+    );
+
+    document.getElementById("transfValor").value = "";
+    document.getElementById("transfDescricao").value = "";
+
+    atualizarTudo();
+}
+window.transferirEntreCofrinhos = transferirEntreCofrinhos;
+window.adicionarLancamento = adicionarLancamento;
+window.excluir = excluir;
+function obterAliquotaIR(dias){
+
+    if(dias <= 180) return 0.775;
+    if(dias <= 360) return 0.80;
+    if(dias <= 720) return 0.825;
+
+    return 0.85;
+}
+
+function calcularSistema(){
+
+    const lista = [...dados.lancamentos];
+
+    lista.sort((a,b)=>new Date(a.data)-new Date(b.data));
+
+    if(lista.length===0){
+        return {
+            saldo:0,
+            totalRendimentos:0,
+            rendimentoHoje:0,
+            historicoSaldo:[]
+        };
+    }
+
+    let cofres = {};
+
+    let totalRendimentos = 0;
+    let rendimentoHoje = 0;
+    let historicoSaldo = [];
+
+    let dataInicio = new Date(lista[0].data + "T00:00:00");
+
+    let hoje = new Date();
+    hoje.setHours(0,0,0,0);
+
+    let indice = 0;
+
+    const agora = new Date();
+
+    const passouHorarioRendimento =
+        agora.getHours() >= 3;
+
+    for(
+        let d = new Date(dataInicio);
+        d <= hoje;
+        d.setDate(d.getDate()+1)
+    ){
+
+        const dataAtual =
+            d.toISOString().split("T")[0];
+		const movimentacoesHoje = [];
+        // movimentações do dia
+        while(
+            indice < lista.length &&
+            lista[indice].data === dataAtual
+        ){
+
+			const mov = lista[indice];
+			indice++;
+			
+			movimentacoesHoje.push(mov);
+
+            // DEPÓSITO
+			const nome =
+				(mov.cofrinhoId || "sem-cofre")
+				.trim()
+
+			if(!cofres[nome]){
+				cofres[nome] = [];
+			}
+
+			if(mov.tipo === "entrada"){
+
+				cofres[nome].push({
+					valor: mov.valor,
+					valorInicial: mov.valor,
+					dataEntrada: mov.data
+				});
+
+			}
+
+            
+			// RETIRADA
+		else{
+		
+		    // Se for hoje, não processa agora.
+		    // Vai processar depois do rendimento.
+		    if(
+		        dataAtual === hoje.toISOString().split("T")[0]
+		    ){
+		        continue;
+		    }
+		
+		    const nome =
+		        (mov.cofrinhoId || "sem-cofre")
+		        .trim()
+		
+		    if(!cofres[nome]){
+		        cofres[nome] = [];
+		    }
+		
+		    let restante = mov.valor;
+				for(let i=0; i<cofres[nome].length; i++){
+
+					if(restante <= 0) break;
+
+					const lote = cofres[nome][i];
+
+					const rendimento =
+					    lote.valor - lote.valorInicial;
+					
+					if(lote.valorInicial <= restante){
+					
+					    restante -= lote.valorInicial;
+					
+					    lote.valor = rendimento;
+					
+					    lote.valorInicial = 0;
+					
+					}else{
+					
+					    lote.valor -= restante;
+					
+					    lote.valorInicial -= restante;
+					
+					    restante = 0;
+					}
+
+				}
+
+			cofres[nome] =
+			    cofres[nome].filter(
+			        x => x.valorInicial > 0 || x.valor > 0
+			    );
+
+			}
+
+        }
+
+        if(
+            isDiaUtil(d)
+        ){
+
+            if(
+                dataAtual === hoje.toISOString().split("T")[0] &&
+                !passouHorarioRendimento
+            ){
+                continue;
+            }
+
+            let rendimentoDia = 0;
+
+			// saldo total somando TODOS os cofrinhos, antes do
+			// rendimento de hoje — é essa soma que decide a faixa
+			let saldoTotalAntes = 0;
+
+			for(let nome in cofres){
+				saldoTotalAntes +=
+					cofres[nome].reduce((s,x)=>s+x.valor,0);
+			}
+
+			const taxaBaseHoje =
+				obterTaxaDoDia(dataAtual);
+
+			const taxaEfetivaHoje =
+				dataAtual >= DATA_INICIO_FAIXAS
+				? obterTaxaEfetiva(saldoTotalAntes, taxaBaseHoje)
+				: taxaBaseHoje;
+
+			for(let nome in cofres){
+
+				for(let lote of cofres[nome]){
+
+                // não rende no dia do depósito
+                if(lote.dataEntrada === dataAtual){
+                    continue;
+                }
+
+                const dataEntrada =
+                    new Date(lote.dataEntrada + "T00:00:00");
+
+                const diasInvestidos =
+                    Math.floor(
+                        (d - dataEntrada) / 86400000
+                    );
+
+                const rendimentoBruto =
+                    lote.valor * taxaEfetivaHoje;
+
+                const aliquota =
+                    obterAliquotaIR(diasInvestidos);
+
+                const rendimentoLiquido =
+                    rendimentoBruto * aliquota;
+
+                lote.valor += rendimentoLiquido;
+
+                rendimentoDia += rendimentoLiquido;
+
+                totalRendimentos += rendimentoLiquido;
+				}
+
+			}
+
+            if(
+                dataAtual === hoje.toISOString().split("T")[0]
+            ){
+                rendimentoHoje = rendimentoDia;
+            }
+			if(
+			    dataAtual === hoje.toISOString().split("T")[0]
+			){
+			
+			    const retiradasHoje =
+			        movimentacoesHoje.filter(
+			            x => x.tipo === "saida"
+			        );
+			
+			    retiradasHoje.forEach(mov=>{
+			
+			        const nome =
+			            (mov.cofrinhoId || "sem-cofre")
+			            .trim();
+			
+			        if(!cofres[nome]){
+			            cofres[nome] = [];
+			        }
+			
+			        let restante = mov.valor;
+			
+			        for(
+			            let i=0;
+			            i<cofres[nome].length;
+			            i++
+			        ){
+			
+			            if(restante <= 0) break;
+			
+			            const lote =
+			                cofres[nome][i];
+			
+						const rendimento =
+						    lote.valor - lote.valorInicial;
+						
+						if(lote.valorInicial <= restante){
+						
+						    restante -= lote.valorInicial;
+						
+						    lote.valor = rendimento;
+						
+						    lote.valorInicial = 0;
+						
+						}else{
+						
+						    lote.valor -= restante;
+						
+						    lote.valorInicial -= restante;
+						
+						    restante = 0;
+						}
+			        }
+			
+				cofres[nome] =
+				    cofres[nome]
+				    .filter(
+				        x => x.valorInicial > 0 || x.valor > 0
+				    );
+			
+			    });
+			
+			}
+        }
+
+		let saldoAtual = 0;
+
+		for(let nome in cofres){
+
+			saldoAtual +=
+				cofres[nome]
+				.reduce((s,x)=>s+x.valor,0);
+
+		}
+
+        let totalDepositado = 0;
+        let totalRetirado = 0;
+
+        for(let i = 0; i <= indice - 1; i++){
+
+            const mov = lista[i];
+
+            if(mov.tipo === "entrada"){
+                totalDepositado += mov.valor;
+            }else{
+                totalRetirado += mov.valor;
+            }
+
+        }
+
+        const lucroAtual =
+            saldoAtual - (totalDepositado - totalRetirado);
+
+        historicoSaldo.push({
+            data:dataAtual,
+
+            saldo:Number(saldoAtual.toFixed(2)),
+
+            depositado:Number(totalDepositado.toFixed(2)),
+
+            retirado:Number(totalRetirado.toFixed(2)),
+
+            lucro:Number(lucroAtual.toFixed(2))
+        });
+    }
+
+	let saldoFinal = 0;
+
+	let saldoCofres = {};
+	let rendimentoCofres = {};
+
+	for(let nome in cofres){
+	
+	    const saldo =
+	        cofres[nome]
+	        .reduce((s,x)=>s+x.valor,0);
+	
+	    const investido =
+	        cofres[nome]
+	        .reduce((s,x)=>s+x.valorInicial,0);
+	
+	    const rendimento =
+	        saldo - investido;
+	
+	    saldoCofres[nome] = saldo;
+	
+	    rendimentoCofres[nome] = rendimento;
+	
+	    saldoFinal = Number(
+	        (saldoFinal + saldo).toFixed(2)
+	    );
+	}
+
+	return {
+        saldo:Number(saldoFinal.toFixed(2)),
+        totalRendimentos:Number(totalRendimentos.toFixed(2)),
+        rendimentoHoje:Number(rendimentoHoje.toFixed(2)),
+		historicoSaldo,
+		saldoCofres,
+		rendimentoCofres
+	};
+}
+function preverSaldo(saldo,dias){
+
+    let valor = saldo;
+
+    let data = new Date();
+
+    for(let i=0;i<dias;i++){
+
+        data.setDate(data.getDate()+1);
+
+        if(isDiaUtil(data)){
+
+            const dataAtual =
+                data.toISOString().split("T")[0];
+
+            const taxaBaseHoje =
+                obterTaxaDoDia(dataAtual);
+
+            const taxaEfetivaHoje =
+                obterTaxaEfetiva(valor, taxaBaseHoje);
+
+            const rendimentoBruto =
+                valor * taxaEfetivaHoje;
+
+            // simulação IR
+			const rendimentoLiquido =
+				Number(
+					(rendimentoBruto * 0.775).toFixed(2)
+				);
+
+            valor += rendimentoLiquido;
+        }
+    }
+
+    return valor;
+}
+function obterNomeCofrinho(id){
+
+    const cofre =
+        dados.cofrinhos.find(
+            x => x.firestoreId === id
+        );
+
+    return cofre?.nome || "sem-nome";
+}
+function renderCofrinhos(calculo){
+
+	const lista =
+	    Object.entries(calculo.saldoCofres || {})
+	    .sort((a, b) => b[1] - a[1]); // Maior saldo primeiro
+
+    const div =
+        document.getElementById("listaCofrinhos");
+
+    div.innerHTML = "";
+
+    if(lista.length === 0){
+        div.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+                <span class="emoji">🐷</span>
+                Nenhum cofrinho ainda. Crie o primeiro em "Novo Lançamento".
+            </div>
+        `;
+        return;
+    }
+
+    const html = lista.map(([nome,saldo])=>{
+
+        const rendimento =
+            calculo.rendimentoCofres?.[nome] || 0;
+
+        const ehCofrinhoReal =
+            dados.cofrinhos.some(c => c.firestoreId === nome);
+
+        return `
+
+        <div class="top-card">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <h3 style="margin-bottom:0;">${obterNomeCofrinho(nome)}</h3>
+                ${ehCofrinhoReal ? `
+                <button
+                    onclick="renomearCofrinho('${nome}')"
+                    title="Renomear cofrinho"
+                    style="padding:5px 9px; font-size:12px; border-radius:8px;">
+                    ✏️
+                </button>` : ``}
+            </div>
+
+            <div class="valor" style="margin-top:10px;">
+                ${formatar(saldo)}
+            </div>
+
+            <div style="
+                margin-top:10px;
+                color:#00e0a0;
+                font-size:14px;
+            ">
+                💸 + ${formatar(rendimento)}
+				até agora
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    div.innerHTML = html.join("");
+
+}
+function calcularEstatisticasMes(calculo){
+
+    const hoje = new Date();
+
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+
+    let depositado = 0;
+    let retirado = 0;
+
+    dados.lancamentos.forEach(item=>{
+
+        const data =
+            new Date(item.data + "T00:00:00");
+
+        if(
+            data.getMonth() === mesAtual &&
+            data.getFullYear() === anoAtual
+        ){
+
+            if(item.tipo === "entrada"){
+                depositado += item.valor;
+            }else{
+                retirado += item.valor;
+            }
+
+        }
+
+    });
+
+    // saldo ANTES do mês começar
+    let saldoInicioMes = 0;
+
+    const primeiroDia =
+        new Date(
+            anoAtual,
+            mesAtual,
+            1
+        );
+
+    const historico =
+        calculo.historicoSaldo;
+
+    for(let i = historico.length - 1; i >= 0; i--){
+
+        const dataHistorico =
+            new Date(
+                historico[i].data + "T00:00:00"
+            );
+
+        if(dataHistorico < primeiroDia){
+
+            saldoInicioMes =
+                historico[i].saldo;
+
+            break;
+        }
+    }
+
+	let saldoAtualMes = 0;
+
+	const hojeStr =
+		hoje.toISOString().split("T")[0];
+
+	const saldoHoje =
+		historico.find(
+			x => x.data === hojeStr
+		);
+
+	if(saldoHoje){
+		saldoAtualMes = saldoHoje.saldo;
+	}else{
+		saldoAtualMes = calculo.saldo;
+	}
+
+	const crescimentoLiquido =
+		saldoAtualMes - saldoInicioMes;
+
+    const rendimentoMes =
+        crescimentoLiquido -
+        (depositado - retirado);
+
+    return {
+        depositado:
+            Number(depositado.toFixed(2)),
+
+        retirado:
+            Number(retirado.toFixed(2)),
+
+        rendimentoMes:
+            Number(rendimentoMes.toFixed(2)),
+
+        crescimentoLiquido:
+            Number(crescimentoLiquido.toFixed(2))
+    };
+}
+function atualizarTudo(){
+
+    const calculo = calcularSistema();
+
+    ultimoCalculo = calculo;
+
+	const estatisticas =
+		calcularEstatisticasMes(calculo);
+
+	const hoje = new Date();
+
+	document.getElementById("mesAtual")
+	.innerHTML =
+		hoje.toLocaleDateString(
+			"pt-BR",
+			{
+				month:"long",
+				year:"numeric"
+			}
+		);
+
+	document.getElementById("depositadoMes")
+	.innerHTML =
+		"💰 Depositado: " +
+		formatar(
+			estatisticas.depositado
+		);
+
+	document.getElementById("retiradoMes")
+	.innerHTML =
+		"💸 Retirado: " +
+		formatar(
+			estatisticas.retirado
+		);
+
+	document.getElementById("rendimentoMes")
+	.innerHTML =
+		"📈 Rendimentos: " +
+		formatar(
+			estatisticas.rendimentoMes
+		);
+
+	document.getElementById("crescimentoMes")
+	.innerHTML =
+		"🚀 Crescimento líquido: " +
+		(
+			estatisticas.crescimentoLiquido >= 0
+			? "+"
+			: ""
+		) +
+		formatar(
+			estatisticas.crescimentoLiquido
+		);
+		
+	document.getElementById("estimativaMensal").innerHTML =
+    formatar(
+        preverSaldo(calculo.saldo,30) - calculo.saldo
+    );
+    document.getElementById("saldo").innerHTML =
+        formatar(calculo.saldo);
+
+    document.getElementById("totalRendimento").innerHTML =
+        formatar(calculo.totalRendimentos);
+
+    document.getElementById("rendimentoHoje").innerHTML =
+        "Hoje rendeu: " + formatar(calculo.rendimentoHoje);
+
+    document.getElementById("prev30").innerHTML =
+        formatar(preverSaldo(calculo.saldo,30));
+
+    document.getElementById("prev365").innerHTML =
+        formatar(preverSaldo(calculo.saldo,365));
+		
+	renderCofrinhos(calculo);
+    renderHistorico();
+
+    renderGrafico(calculo.historicoSaldo);
+
+    mostrarPush(calculo.rendimentoHoje);
+
+}
+
+function renderHistorico(){
+
+    const tbody = document.getElementById("historico");
+
+    tbody.innerHTML = "";
+
+    if(dados.lancamentos.length === 0){
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <div class="empty-state">
+                        <span class="emoji">📭</span>
+                        Nenhum lançamento ainda. Adicione um depósito para começar.
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const lista = [...dados.lancamentos]
+        .sort((a,b)=>
+            new Date(b.data) - new Date(a.data) ||
+            b.id - a.id
+        );
+
+    const grupos = {};
+
+    lista.forEach(item=>{
+
+        const data = new Date(item.data + "T00:00:00");
+
+        const chaveMes =
+            data.toLocaleDateString(
+                "pt-BR",
+                {
+                    month:"long",
+                    year:"numeric"
+                }
+            );
+
+        if(!grupos[chaveMes]){
+            grupos[chaveMes] = [];
+        }
+
+        grupos[chaveMes].push(item);
+
+    });
+
+    const partes = [];
+
+    Object.entries(grupos).forEach(([mes,itens])=>{
+
+        const totalMes = itens.reduce((s,item)=>{
+
+            return s +
+            (item.tipo === "entrada"
+                ? item.valor
+                : -item.valor);
+
+        },0);
+
+        partes.push(`
+            <tr style="
+                background:#1a2233;
+                cursor:pointer;
+                font-weight:bold;
+                color:#f4f7fc;
+            "
+            onclick="toggleMes('${mes.replace(/'/g,"")}')">
+
+                <td colspan="5">
+                    📅 ${mes.toUpperCase()}
+                    (${itens.length} lançamentos)
+
+                    <span style="
+                        float:right;
+                        color:${totalMes >= 0 ? '#00e0a0' : '#ff6b7a'};
+                    ">
+                        ${formatar(totalMes)}
+                    </span>
+                </td>
+
+            </tr>
+
+            <tbody id="mes-${mes.replace(/\s/g,'-')}">
+        `);
+
+        itens.forEach(item=>{
+
+            partes.push(`
+
+            <tr class="mes-${mes.replace(/\s/g,'-')}">
+
+                <td>${formatarData(item.data)}</td>
+
+                <td>
+                    <strong>
+                        ${obterNomeCofrinho(item.cofrinhoId)}
+                    </strong>
+                    <br>
+                    <small>
+                        ${item.descricao || "-"}
+                    </small>
+                </td>
+
+                <td>
+                    <span class="badge-tipo ${item.tipo}">
+                        ${item.tipo === "entrada"
+                            ? "Entrada"
+                            : "Saída"}
+                    </span>
+                </td>
+
+                <td class="${item.tipo}">
+                    ${item.tipo === "entrada"
+                        ? "+"
+                        : "-"}
+                    ${formatar(item.valor)}
+                </td>
+
+                <td>
+                    <button
+                        class="excluir"
+                        onclick="excluir('${item.firestoreId}')">
+                        Excluir
+                    </button>
+                </td>
+
+            </tr>
+
+            `);
+
+        });
+
+    });
+
+    tbody.innerHTML = partes.join("");
+
+    document.querySelectorAll(
+        '[class^="mes-"]'
+    ).forEach(el=>{
+        el.style.display = "none";
+    });
+
+}
+function toggleMes(nomeMes){
+
+    const classe =
+        "mes-" +
+        nomeMes.replace(/\s/g,'-');
+
+    document
+        .querySelectorAll("." + classe)
+        .forEach(linha=>{
+
+            linha.style.display =
+                linha.style.display === "none"
+                ? "table-row"
+                : "none";
+
+        });
+
+}
+
+window.toggleMes = toggleMes;
+
+function formatarData(data){
+
+    const d = new Date(data + "T00:00:00");
+
+    return d.toLocaleDateString("pt-BR");
+
+}
+let periodoGrafico = 30;
+function alterarPeriodo(dias){
+
+	periodoGrafico = dias;
+
+	document
+		.querySelectorAll("#periodosGrafico button")
+		.forEach(btn=>{
+			btn.classList.toggle(
+				"ativo",
+				Number(btn.dataset.dias) === dias
+			);
+		});
+
+	// reaproveita o último cálculo já feito (os dados não mudaram,
+	// só a janela de dias exibida no gráfico) — evita refazer a
+	// simulação dia a dia inteira a cada clique
+	const calculo = ultimoCalculo || calcularSistema();
+
+	renderGrafico(calculo.historicoSaldo);
+
+}
+
+window.alterarPeriodo = alterarPeriodo;
+function renderGrafico(historico){
+    if(periodoGrafico !== 99999){
+
+        historico =
+            historico.slice(-periodoGrafico);
+
+    }
+    const ctx = document.getElementById("grafico");
+
+    const labels = historico.map(x =>
+        formatarData(x.data)
+    );
+
+    const valores = historico.map(x => x.saldo);
+    const depositado =
+        historico.map(x => x.depositado);
+
+    const retirado =
+        historico.map(x => x.retirado);
+
+    const lucro =
+        historico.map(x => x.lucro);
+
+    if(grafico){
+        grafico.destroy();
+    }
+
+    // gradiente estilo cartão bancário
+    const gradient = ctx
+        .getContext("2d")
+        .createLinearGradient(0,0,0,400);
+
+    gradient.addColorStop(0,"rgba(0,116,228,0.22)");
+    gradient.addColorStop(1,"rgba(0,116,228,0)");
+
+    grafico = new Chart(ctx,{
+        type:"line",
+
+        data:{
+            labels,
+                datasets:[
+
+                {
+                    label:"Patrimônio",
+                    data:valores,
+
+                    borderColor:"#3f9dff",
+                    backgroundColor:gradient,
+                    fill:true,
+
+                    borderWidth:3,
+
+                    pointRadius:0,
+                    pointHoverRadius:5,
+
+                    tension:0.4
+                },
+
+                {
+                    label:"Total Depositado",
+                    data:depositado,
+
+                    borderColor:"#00e0a0",
+
+                    backgroundColor:"transparent",
+
+                    borderWidth:2,
+
+                    pointRadius:0,
+
+                    borderDash:[6,6],
+
+                    tension:0.3
+                },
+
+                {
+                    label:"Total Retirado",
+                    data:retirado,
+
+                    borderColor:"#ff6b7a",
+
+                    backgroundColor:"transparent",
+
+                    borderWidth:2,
+
+                    pointRadius:0,
+
+                    tension:0.3
+                },
+
+                {
+                    label:"Lucro",
+                    data:lucro,
+
+                    borderColor:"#ffc65c",
+
+                    backgroundColor:"transparent",
+
+                    borderWidth:2,
+
+                    pointRadius:0,
+
+                    borderDash:[3,4],
+
+                    tension:0.35
+                }
+
+                ]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+
+            interaction:{
+                intersect:false,
+                mode:"index"
+            },
+
+            plugins:{
+
+                legend:{
+                    display:true,
+
+                    labels:{
+                        color:"#a3aec4",
+                        padding:20,
+                        usePointStyle:true,
+                        pointStyle:"circle"
+                    }
+                },
+
+                tooltip:{
+                    backgroundColor:"#0d1220",
+                    borderColor:"rgba(255,255,255,0.1)",
+                    borderWidth:1,
+                    padding:12,
+                    cornerRadius:10,
+
+                    callbacks:{
+                        label:function(context){
+                            return " " +
+                            context.raw.toLocaleString(
+                                "pt-BR",
+                                {
+                                    style:"currency",
+                                    currency:"BRL"
+                                }
+                            );
+                        }
+                    }
+                }
+            },
+
+            scales:{
+
+                x:{
+                    grid:{
+                        display:false
+                    },
+                    ticks:{
+                        color:"#707d96",
+                        maxTicksLimit:5
+                    }
+                },
+
+                y:{
+                    beginAtZero:false,
+                    grace:"12%",
+
+                    grid:{
+                        color:"rgba(255,255,255,0.05)"
+                    },
+
+                    ticks:{
+                        color:"#707d96",
+
+                        callback:function(value){
+                            return value.toLocaleString(
+                                "pt-BR",
+                                {
+                                    style:"currency",
+                                    currency:"BRL",
+                                    maximumFractionDigits:0
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// mostra/oculta o valor do saldo (só visual — não mexe em nenhum cálculo)
+let saldoOculto = false;
+function alternarSaldo(){
+
+    saldoOculto = !saldoOculto;
+
+    document
+        .getElementById("saldo")
+        .classList.toggle("oculto", saldoOculto);
+
+    document.getElementById("btnOlho").textContent =
+        saldoOculto ? "🙈" : "👁️";
+
+    document.getElementById("btnOlho").title =
+        saldoOculto ? "Mostrar saldo" : "Ocultar saldo";
+
+}
+window.alternarSaldo = alternarSaldo;
+
+function mostrarPush(valor){
+
+    if(valor <= 0) return;
+
+    if(sessionStorage.getItem("pushHoje")) return;
+
+    const div = document.createElement("div");
+
+    div.className = "notificacao";
+
+    div.innerHTML = `
+        💸 Seu dinheiro rendeu hoje:
+        <br><br>
+        <strong>${formatar(valor)}</strong>
+    `;
+
+    document.body.appendChild(div);
+
+    setTimeout(()=>{
+        div.remove();
+    },5000);
+
+    sessionStorage.setItem("pushHoje","1");
+
+}
+function obterRendimentosMensais(){
+
+    const calculo = calcularSistema();
+
+    const historico = calculo.historicoSaldo;
+
+    const meses = {};
+
+    historico.forEach((dia,i)=>{
+
+        const data = new Date(dia.data+"T00:00:00");
+
+        const chave =
+            data.toLocaleDateString("pt-BR",{
+                month:"short",
+                year:"2-digit"
+            });
+
+        if(!meses[chave]){
+
+            // referência = último dia ANTES do mês começar
+            // (mesma lógica do card "Estatísticas do Mês"),
+            // assim o rendimento do 1º dia do mês não fica de fora
+            const anterior = historico[i-1];
+
+            meses[chave]={
+                lucroInicial: anterior ? anterior.lucro : 0,
+                ultimo:dia
+            };
+        }
+
+        meses[chave].ultimo = dia;
+
+    });
+
+    return Object.entries(meses).map(([mes,val])=>{
+
+        const rendimento =
+            val.ultimo.lucro -
+            val.lucroInicial;
+
+        return{
+            mes,
+            rendimento:Number(rendimento.toFixed(2))
+        };
+
+    });
+
+}
+async function gerarPDFResumo(){
+
+    const btnPdf = document.getElementById("btnPdf");
+    if(btnPdf){
+        btnPdf.disabled = true;
+        btnPdf.textContent = "⏳ Gerando PDF...";
+    }
+
+    const calculo = calcularSistema();
+    const estatisticas =
+        calcularEstatisticasMes(calculo);
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF({
+        orientation:"portrait",
+        unit:"mm",
+        format:"a4"
+    });
+
+    const hoje = new Date();
+
+    const totalEntradas =
+        dados.lancamentos
+        .filter(x=>x.tipo==="entrada")
+        .reduce((s,x)=>s+x.valor,0);
+
+    const totalSaidas =
+        dados.lancamentos
+        .filter(x=>x.tipo==="saida")
+        .reduce((s,x)=>s+x.valor,0);
+
+    const lucroLiquido =
+        calculo.saldo -
+        (totalEntradas-totalSaidas);
+
+    const ultimos =
+        [...dados.lancamentos]
+        .sort((a,b)=>
+            new Date(b.data)
+            -
+            new Date(a.data)
+        )
+        .slice(0,15);
+
+    // =====================
+    // HELPERS
+    // =====================
+
+    function card(
+        x,y,w,h,
+        color=[255,255,255]
+    ){
+        pdf.setFillColor(...color);
+
+        pdf.roundedRect(
+            x,y,w,h,5,5,"F"
+        );
+    }
+
+    function titulo(texto,y){
+
+        pdf.setTextColor(
+            15,23,42
+        );
+
+        pdf.setFontSize(16);
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+        pdf.text(texto,15,y);
+    }
+
+    // =====================
+    // HEADER PREMIUM
+    // =====================
+
+    pdf.setFillColor(
+        15,23,42
+    );
+
+    pdf.rect(
+        0,0,210,55,"F"
+    );
+
+    pdf.setTextColor(
+        255,255,255
+    );
+
+    pdf.setFontSize(24);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.text(
+        "COFRINHO PRO",
+        15,
+        20
+    );
+
+    pdf.setFontSize(12);
+
+    pdf.setTextColor(
+        203,213,225
+    );
+
+    pdf.text(
+        "Relatório Financeiro Inteligente",
+        15,
+        28
+    );
+
+    pdf.text(
+        hoje.toLocaleDateString("pt-BR"),
+        15,
+        35
+    );
+
+    // =====================
+    // SALDO GRANDE
+    // =====================
+
+    card(
+        15,62,180,35,
+        [240,253,244]
+    );
+
+    pdf.setFontSize(12);
+
+    pdf.setTextColor(
+        22,163,74
+    );
+
+    pdf.text(
+        "PATRIMÔNIO ATUAL",
+        22,
+        75
+    );
+
+    pdf.setFontSize(28);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.text(
+        formatar(calculo.saldo),
+        22,
+        88
+    );
+
+    // =====================
+    // CARDS RESUMO
+    // =====================
+
+    const cards = [
+
+        {
+            titulo:"Depositado",
+            valor:formatar(totalEntradas),
+            cor:[219,234,254]
+        },
+
+        {
+            titulo:"Retirado",
+            valor:formatar(totalSaidas),
+            cor:[254,226,226]
+        },
+
+        {
+            titulo:"Rendimento",
+            valor:formatar(
+                calculo.totalRendimentos
+            ),
+            cor:[254,249,195]
+        },
+
+        {
+            titulo:"Lucro",
+            valor:formatar(
+                lucroLiquido
+            ),
+            cor:[220,252,231]
+        }
+
+    ];
+
+    let x = 15;
+    let y = 108;
+
+    cards.forEach(cardInfo=>{
+
+        card(
+            x,
+            y,
+            85,
+            28,
+            cardInfo.cor
+        );
+
+        pdf.setTextColor(
+            71,85,105
+        );
+
+        pdf.setFontSize(10);
+
+        pdf.text(
+            cardInfo.titulo,
+            x+7,
+            y+10
+        );
+
+        pdf.setTextColor(
+            15,23,42
+        );
+
+        pdf.setFontSize(16);
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+        pdf.text(
+            cardInfo.valor,
+            x+7,
+            y+20
+        );
+
+        x += 95;
+
+        if(x > 100){
+            x = 15;
+            y += 35;
+        }
+
+    });
+
+    // =====================
+    // NOVA PÁGINA
+    // =====================
+
+    pdf.addPage();
+
+    pdf.setFont("helvetica","bold");
+    pdf.setFontSize(18);
+
+    pdf.text(
+        "Rendimentos Mensais",
+        15,
+        18
+    );
+
+    // ======================
+    // GRÁFICO DE RENDIMENTOS MENSAIS
+    // ======================
+
+    const dadosGrafico = obterRendimentosMensais();
+
+    // canvas em alta resolução, na MESMA proporção do espaço
+    // reservado no PDF (186 x 130mm) — evita o gráfico esticado/deformado
+    const larguraPdf = 186;
+    const alturaPdf = 130;
+    const escala = 6; // px por mm, para ficar nítido na impressão
+
+    const canvas = document.createElement("canvas");
+    canvas.width = larguraPdf * escala;
+    canvas.height = alturaPdf * escala;
+
+    const ctx = canvas.getContext("2d");
+
+    // fundo branco explícito (o PDF é branco; sem isso o PNG fica transparente)
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // valor atual, valor do mês anterior e diferença de cada mês
+    const atuais = dadosGrafico.map(x => x.rendimento);
+
+    const anteriores = atuais.map((v,i) => i === 0 ? v : atuais[i-1]);
+
+    // parte "base": até o valor do mês passado (verde escuro)
+    const base = atuais.map((v,i) => Math.min(v, anteriores[i]));
+
+    // crescimento acima do mês passado (verde claro)
+    const crescimento = atuais.map((v,i) => Math.max(v - anteriores[i], 0));
+
+    // queda em relação ao mês passado (vermelho claro)
+    const queda = atuais.map((v,i) => Math.max(anteriores[i] - v, 0));
+
+    // altura onde o rótulo fica (topo da barra mais alta do mês)
+    const topoRotulo = atuais.map((v,i) => Math.max(v, anteriores[i]));
+
+    function variacaoPct(i){
+        if(i === 0 || anteriores[i] <= 0) return null;
+        return ((atuais[i] - anteriores[i]) / anteriores[i]) * 100;
+    }
+
+    new Chart(ctx,{
+        type:"bar",
+
+        data:{
+            labels:dadosGrafico.map(x=>x.mes),
+
+            datasets:[
+
+                {
+                    type:"bar",
+                    label:"Mês anterior",
+                    data:base,
+                    backgroundColor:"#15803d",
+                    stack:"rend",
+                    maxBarThickness:60,
+                    order:2
+                },
+
+                {
+                    type:"bar",
+                    label:"Crescimento",
+                    data:crescimento,
+                    backgroundColor:"#4ade80",
+                    borderRadius:{ topLeft:8, topRight:8 },
+                    borderSkipped:false,
+                    stack:"rend",
+                    maxBarThickness:60,
+                    order:2
+                },
+
+                {
+                    type:"bar",
+                    label:"Queda",
+                    data:queda,
+                    backgroundColor:"#fca5a5",
+                    borderRadius:{ topLeft:8, topRight:8 },
+                    borderSkipped:false,
+                    stack:"rend",
+                    maxBarThickness:60,
+                    order:2
+                },
+
+                // linha invisível, serve só para posicionar o rótulo no topo
+                {
+                    type:"line",
+                    label:"rotulo",
+                    data:topoRotulo,
+                    borderColor:"transparent",
+                    backgroundColor:"transparent",
+                    pointRadius:0,
+                    order:1,
+
+                    datalabels:{
+                        display:true,
+                        anchor:"end",
+                        align:"top",
+                        offset:4,
+                        textAlign:"center",
+
+                        font:{
+                            size:16,
+                            weight:"bold",
+                            family:"Helvetica"
+                        },
+
+                        color(c){
+                            const p = variacaoPct(c.dataIndex);
+                            if(p === null) return "#166534";
+                            return p >= 0 ? "#166534" : "#b91c1c";
+                        },
+
+                        formatter(valor, c){
+
+                            const i = c.dataIndex;
+
+                            const linha1 =
+                                atuais[i].toLocaleString("pt-BR",{
+                                    style:"currency",
+                                    currency:"BRL"
+                                });
+
+                            const p = variacaoPct(i);
+
+                            if(p === null) return linha1;
+
+                            const seta = p >= 0 ? "▲" : "▼";
+
+                            return [
+                                linha1,
+                                seta + " " +
+                                Math.abs(p).toLocaleString("pt-BR",{
+                                    maximumFractionDigits:1
+                                }) + "%"
+                            ];
+                        }
+                    }
+                }
+
+            ]
+        },
+
+        options:{
+            responsive:false,
+            devicePixelRatio:1,
+
+            layout:{
+                padding:{ top:50, right:12, left:6, bottom:4 }
+            },
+
+            plugins:{
+                legend:{
+                    display:true,
+                    position:"bottom",
+                    labels:{
+                        color:"#334155",
+                        font:{ size:18, family:"Helvetica" },
+                        padding:18,
+                        boxWidth:18,
+                        boxHeight:18,
+                        // esconde a linha invisível da legenda
+                        filter:(item)=> item.text !== "rotulo"
+                    }
+                },
+                datalabels:{
+                    display:false
+                }
+            },
+
+            scales:{
+                x:{
+                    stacked:true,
+                    grid:{ display:false },
+                    border:{ color:"#cbd5e1" },
+                    ticks:{
+                        color:"#334155",
+                        font:{ size:20, family:"Helvetica" }
+                    }
+                },
+                y:{
+                    stacked:true,
+                    beginAtZero:true,
+                    grace:"18%",
+                    border:{ display:false },
+                    grid:{ color:"#e2e8f0" },
+                    ticks:{
+                        color:"#64748b",
+                        font:{ size:16, family:"Helvetica" },
+                        callback:function(valor){
+                            return valor.toLocaleString(
+                                "pt-BR",
+                                {
+                                    style:"currency",
+                                    currency:"BRL",
+                                    maximumFractionDigits:0
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    await new Promise(r=>setTimeout(r,300));
+
+    const img = canvas.toDataURL("image/png");
+
+    pdf.addImage(
+        img,
+        "PNG",
+        12,
+        28,
+        larguraPdf,
+        alturaPdf
+    );
+
+    // =====================
+    // RODAPÉ
+    // =====================
+
+    const totalPages =
+        pdf.internal
+        .getNumberOfPages();
+
+    for(
+        let i=1;
+        i<=totalPages;
+        i++
+    ){
+
+        pdf.setPage(i);
+
+        pdf.setDrawColor(
+            226,232,240
+        );
+
+        pdf.line(
+            15,
+            285,
+            195,
+            285
+        );
+
+        pdf.setFontSize(9);
+
+        pdf.setTextColor(
+            148,163,184
+        );
+
+        pdf.text(
+            "Cofrinho Inteligente PRO",
+            15,
+            291
+        );
+
+        pdf.text(
+            `Página ${i}/${totalPages}`,
+            180,
+            291,
+            {
+                align:"right"
+            }
+        );
+    }
+
+    pdf.save(
+        `Relatorio-Cofrinho-${hoje.getMonth()+1}-${hoje.getFullYear()}.pdf`
+    );
+
+    if(btnPdf){
+        btnPdf.disabled = false;
+        btnPdf.textContent = "📄 Baixar Resumo Mensal";
+    }
+}
+
+window.gerarPDFResumo = gerarPDFResumo;
+
+document.getElementById("data").value =
+    new Date().toISOString().split("T")[0];
+
+
+
+await carregarCofrinhos();
+
+await carregarFirestore();
+
+const overlay = document.getElementById("loadingOverlay");
+if(overlay){
+    overlay.classList.add("escondido");
+    setTimeout(()=> overlay.remove(), 400);
+}
+
+</script>
+
+</body>
+</html>
