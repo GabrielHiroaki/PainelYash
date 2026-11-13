@@ -1516,6 +1516,7 @@ function calcularSistema(){
 
     let totalRendimentos = 0;
     let rendimentoHoje = 0;
+	let rendimentoHojeCofres = {};
     let historicoSaldo = [];
 
     let dataInicio = new Date(lista[0].data + "T00:00:00");
@@ -1685,6 +1686,10 @@ function calcularSistema(){
                 lote.valor += rendimentoLiquido;
 
                 rendimentoDia += rendimentoLiquido;
+				if(dataAtual === hoje.toISOString().split("T")[0]){
+				    rendimentoHojeCofres[nome] =
+				        (rendimentoHojeCofres[nome] || 0) + rendimentoLiquido;
+				}
 
                 totalRendimentos += rendimentoLiquido;
 				}
@@ -1834,7 +1839,8 @@ function calcularSistema(){
         rendimentoHoje:Number(rendimentoHoje.toFixed(2)),
 		historicoSaldo,
 		saldoCofres,
-		rendimentoCofres
+		rendimentoCofres,
+		rendimentoHojeCofres
 	};
 }
 function preverSaldo(saldoCofres,dias){
@@ -1901,6 +1907,8 @@ function renderCofrinhos(calculo){
 
         const rendimento =
             calculo.rendimentoCofres?.[nome] || 0;
+		const rendimentoHojeCofre =
+		    calculo.rendimentoHojeCofres?.[nome] || 0;
 
         const ehCofrinhoReal =
             dados.cofrinhos.some(c => c.firestoreId === nome);
@@ -1936,6 +1944,13 @@ function renderCofrinhos(calculo){
                 💸 + ${formatar(rendimento)}
 				até agora
             </div>
+			<div style="
+			    margin-top:4px;
+			    color:#a3aec4;
+			    font-size:13px;
+			">
+			    📅 + ${formatar(rendimentoHojeCofre)} hoje
+			</div>
 
         </div>
 
