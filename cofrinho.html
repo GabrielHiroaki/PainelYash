@@ -921,7 +921,7 @@ footer.rodape{
 
     </div>
 
-    <footer class="rodape">Cofrinho Inteligente PRO · dados sincronizados em tempo real</footer>
+    <footer class="rodape">Cofrinho Inteligente PRO · v2 (config por cofrinho) · dados sincronizados em tempo real</footer>
 
 </div>
 
@@ -1838,8 +1838,10 @@ function calcularSistema(){
 	};
 }
 function preverSaldo(saldoCofres,dias){
-
-    const valores = {...(saldoCofres || {})};
+    // aceita tanto o objeto {cofrinho: saldo} quanto um número solto
+    const valores = (typeof saldoCofres === "number")
+        ? { "total": saldoCofres }
+        : {...(saldoCofres || {})};
 
     let data = new Date();
 
