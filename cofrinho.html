@@ -2096,7 +2096,7 @@ function atualizarTudo(){
 		
 	document.getElementById("estimativaMensal").innerHTML =
     formatar(
-        preverSaldo(calculo.saldo,30) - calculo.saldo
+        preverSaldo(calculo.saldoCofres,30) - calculo.saldo
     );
     document.getElementById("saldo").innerHTML =
         formatar(calculo.saldo);
@@ -2108,10 +2108,10 @@ function atualizarTudo(){
         "Hoje rendeu: " + formatar(calculo.rendimentoHoje);
 
     document.getElementById("prev30").innerHTML =
-        formatar(preverSaldo(calculo.saldo,30));
+        formatar(preverSaldo(calculo.saldoCofres,30));
 
     document.getElementById("prev365").innerHTML =
-        formatar(preverSaldo(calculo.saldo,365));
+        formatar(preverSaldo(calculo.saldoCofres,365));
 		
 	renderCofrinhos(calculo);
     renderHistorico();
