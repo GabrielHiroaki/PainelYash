@@ -1017,7 +1017,50 @@ function obterTaxaEfetiva(saldoTotal, taxaBase){
     // "quais reais" pertencem a qual faixa)
     return rendimentoTotal / saldoTotal;
 }
+// ===== Configuração por cofrinho =====
+const PCT_PADRAO = 120;        // % do CDI até o limite (faixa compartilhada)
+const PCT_ACIMA_PADRAO = 100;  // % do CDI acima do limite
 
+// taxa diária equivalente a 100% do CDI (a taxa atual equivale a 120%)
+function obterTaxa100CDI(data){
+    return obterTaxaDoDia(data) / 1.2;
+}
+
+function obterConfigCofrinho(id){
+    const c = dados.cofrinhos.find(x => x.firestoreId === id);
+    const pct = Number(c?.pctCdi);
+    const limite = Number(c?.limite);
+    const acima = (c?.pctAcima === undefined || c?.pctAcima === null || c?.pctAcima === "")
+        ? NaN : Number(c.pctAcima);
+    return {
+        pct: pct > 0 ? pct : PCT_PADRAO,
+        limite: limite > 0 ? limite : null,
+        pctAcima: isNaN(acima) ? PCT_ACIMA_PADRAO : acima
+    };
+}
+
+function pctPorFaixa(saldo, limite, pct, pctAcima){
+    if(saldo <= 0) return pct;
+    const dentro = Math.min(saldo, limite);
+    const acima = Math.max(saldo - limite, 0);
+    return (dentro * pct + acima * pctAcima) / saldo;
+}
+
+function obterTaxaCofrinho(id, saldoCofre, saldoPool, taxa100, dataAtual){
+    const cfg = obterConfigCofrinho(id);
+    let pctEfetivo;
+
+    if(cfg.limite){
+        // cofrinho com limite próprio (ex: 130% até 5 mil)
+        pctEfetivo = pctPorFaixa(saldoCofre, cfg.limite, cfg.pct, cfg.pctAcima);
+    }else if(dataAtual >= DATA_INICIO_FAIXAS){
+        // cofrinhos comuns: faixa compartilhada de 10 mil
+        pctEfetivo = pctPorFaixa(saldoPool, LIMITE_FAIXA_1, cfg.pct, cfg.pctAcima);
+    }else{
+        pctEfetivo = cfg.pct;
+    }
+    return taxa100 * pctEfetivo / 100;
+}
 let grafico;
 
 // guarda o último resultado de calcularSistema() para os botões de período
@@ -1134,6 +1177,37 @@ async function renomearCofrinho(firestoreId){
     atualizarTudo();
 }
 window.renomearCofrinho = renomearCofrinho;
+async function configurarCofrinho(id){
+
+    const cofre = dados.cofrinhos.find(c => c.firestoreId === id);
+    if(!cofre) return;
+
+    const cfg = obterConfigCofrinho(id);
+
+    const pct = prompt("% do CDI até o limite:", cfg.pct);
+    if(pct === null) return;
+
+    const lim = prompt("Limite em R$ (0 = usar a faixa compartilhada de 10 mil):", cfg.limite || 0);
+    if(lim === null) return;
+
+    const acima = prompt("% do CDI acima do limite:", cfg.pctAcima);
+    if(acima === null) return;
+
+    const num = v => parseFloat(String(v).replace(",", "."));
+
+    const novo = {
+        pctCdi: num(pct) || PCT_PADRAO,
+        limite: num(lim) || 0,
+        pctAcima: isNaN(num(acima)) ? PCT_ACIMA_PADRAO : num(acima)
+    };
+
+    await updateDoc(doc(db, "cofrinhos", id), novo);
+
+    Object.assign(cofre, novo);
+
+    atualizarTudo();
+}
+window.configurarCofrinho = configurarCofrinho;
 async function criarNovoCofrinho(){
 
     const input =
@@ -1566,26 +1640,25 @@ function calcularSistema(){
 
             let rendimentoDia = 0;
 
-			// saldo total somando TODOS os cofrinhos, antes do
-			// rendimento de hoje — é essa soma que decide a faixa
-			let saldoTotalAntes = 0;
-
-			for(let nome in cofres){
-				saldoTotalAntes +=
-					cofres[nome].reduce((s,x)=>s+x.valor,0);
-			}
-
-			const taxaBaseHoje =
-				obterTaxaDoDia(dataAtual);
-
-			const taxaEfetivaHoje =
-				dataAtual >= DATA_INICIO_FAIXAS
-				? obterTaxaEfetiva(saldoTotalAntes, taxaBaseHoje)
-				: taxaBaseHoje;
-
-			for(let nome in cofres){
-
-				for(let lote of cofres[nome]){
+		const taxa100Hoje = obterTaxa100CDI(dataAtual);
+		
+		// faixa compartilhada: só cofrinhos SEM limite próprio
+		let saldoPool = 0;
+		for(let nome in cofres){
+		    if(!obterConfigCofrinho(nome).limite){
+		        saldoPool += cofres[nome].reduce((s,x)=>s+x.valor,0);
+		    }
+		}
+		
+		for(let nome in cofres){
+		
+		    const saldoCofre =
+		        cofres[nome].reduce((s,x)=>s+x.valor,0);
+		
+		    const taxaEfetivaHoje =
+		        obterTaxaCofrinho(nome, saldoCofre, saldoPool, taxa100Hoje, dataAtual);
+		
+		    for(let lote of cofres[nome]){
 
                 // não rende no dia do depósito
                 if(lote.dataEntrada === dataAtual){
@@ -1764,9 +1837,9 @@ function calcularSistema(){
 		rendimentoCofres
 	};
 }
-function preverSaldo(saldo,dias){
+function preverSaldo(saldoCofres,dias){
 
-    let valor = saldo;
+    const valores = {...(saldoCofres || {})};
 
     let data = new Date();
 
@@ -1774,31 +1847,23 @@ function preverSaldo(saldo,dias){
 
         data.setDate(data.getDate()+1);
 
-        if(isDiaUtil(data)){
+        if(!isDiaUtil(data)) continue;
 
-            const dataAtual =
-                data.toISOString().split("T")[0];
+        const dataAtual = data.toISOString().split("T")[0];
+        const taxa100 = obterTaxa100CDI(dataAtual);
 
-            const taxaBaseHoje =
-                obterTaxaDoDia(dataAtual);
+        let pool = 0;
+        for(const id in valores){
+            if(!obterConfigCofrinho(id).limite) pool += valores[id];
+        }
 
-            const taxaEfetivaHoje =
-                obterTaxaEfetiva(valor, taxaBaseHoje);
-
-            const rendimentoBruto =
-                valor * taxaEfetivaHoje;
-
-            // simulação IR
-			const rendimentoLiquido =
-				Number(
-					(rendimentoBruto * 0.775).toFixed(2)
-				);
-
-            valor += rendimentoLiquido;
+        for(const id in valores){
+            const taxa = obterTaxaCofrinho(id, valores[id], pool, taxa100, dataAtual);
+            valores[id] += Number((valores[id] * taxa * 0.775).toFixed(2));
         }
     }
 
-    return valor;
+    return Object.values(valores).reduce((s,v)=>s+v,0);
 }
 function obterNomeCofrinho(id){
 
@@ -1837,6 +1902,10 @@ function renderCofrinhos(calculo){
 
         const ehCofrinhoReal =
             dados.cofrinhos.some(c => c.firestoreId === nome);
+		const cfg = obterConfigCofrinho(nome);
+		const textoCfg = cfg.limite
+		    ? `${cfg.pct}% do CDI até ${formatar(cfg.limite)} · depois ${cfg.pctAcima}%`
+		    : `${cfg.pct}% do CDI até ${formatar(LIMITE_FAIXA_1)} (soma) · depois ${cfg.pctAcima}%`;
 
         return `
 
@@ -1844,13 +1913,13 @@ function renderCofrinhos(calculo){
 
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                 <h3 style="margin-bottom:0;">${obterNomeCofrinho(nome)}</h3>
-                ${ehCofrinhoReal ? `
-                <button
-                    onclick="renomearCofrinho('${nome}')"
-                    title="Renomear cofrinho"
-                    style="padding:5px 9px; font-size:12px; border-radius:8px;">
-                    ✏️
-                </button>` : ``}
+				${ehCofrinhoReal ? `
+				<div style="display:flex; gap:6px;">
+				    <button onclick="configurarCofrinho('${nome}')" title="Configurar rendimento"
+				        style="padding:5px 9px; font-size:12px; border-radius:8px;">⚙️</button>
+				    <button onclick="renomearCofrinho('${nome}')" title="Renomear cofrinho"
+				        style="padding:5px 9px; font-size:12px; border-radius:8px;">✏️</button>
+				</div>` : ``}
             </div>
 
             <div class="valor" style="margin-top:10px;">
